@@ -14,17 +14,33 @@ logging.debug('Imported modules')
 logging.debug('Start of program')
 logging.debug(f'Current cwd = {os.getcwd()}')
 
-p_number = 'P-46240'
-
+p_number_to_search = 'P-46240'
+p_number_col = 'SE Project Number'
+topic_col = 'Topic'
+sales_contact_col = 'Sales Contact'
 
 # TODO: import xlsm to sqlite
 
 filename = "KP temp test copy"
-con = sqlite3.connect(filename+".db")
-df = pd.read_excel(filename+'.xlsm', sheet_name='PPT')
-df.to_sql('PPT', con)
-con.commit()
-con.close()
+conn = sqlite3.connect(filename + ".db")
+c = conn.cursor()
+# df = pd.read_excel(filename+'.xlsm', sheet_name='PPT')  # create dataframe from xlsm content
+# df.to_sql('PPT', conn)  # populate database with dataframe content
+table_name = "PPT"
+conn.commit()
 
 
 # TODO: lookup Title and other variables corresponding to project number of interest
+
+# 1) Contents of all columns for row that match a certain value in 1 column
+c.execute('SELECT ("{coi}") FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=p_number_col, coi=topic_col, scn=p_number_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
+all_rows = c.fetchall()
+print(all_rows)
+
+
+# TODO: 
+
+
+
+conn.close()
+
