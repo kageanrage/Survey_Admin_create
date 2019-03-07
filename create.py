@@ -21,12 +21,10 @@ p_number = 'P-46240'
 
 filename = "KP temp test copy"
 con = sqlite3.connect(filename+".db")
-wb = pd.read_excel(filename+'.xlsm',sheet_name='PPT')
-for sheet in wb:
-    wb[sheet].to_sql(sheet, con, index=False)
+df = pd.read_excel(filename+'.xlsm', sheet_name='PPT')
+df.to_sql('PPT', con)
 con.commit()
 con.close()
-
 
 
 # TODO: lookup Title and other variables corresponding to project number of interest
