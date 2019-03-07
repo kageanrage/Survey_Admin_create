@@ -17,9 +17,8 @@ os.chdir(cfg.cwd)  # change the current working directory to the one stipulated 
 # logging.debug('Start of program')
 # logging.debug(f'Current cwd = {os.getcwd()}')
 
-p_number_to_search = 'P-46240'
-date_example = "07/03/2019 00:00:00"
-# TODO: code to create Start Date (today's date) and End Date (last day of next month)
+p_number_to_search = 'P-46240'  # just used in the testing phase
+date_example = "07/03/2019 00:00:00"  # not coded, just a visual reminder of date format requirement
 
 
 def generate_dates():
@@ -51,6 +50,15 @@ client_name_col = 'Client name'
 sales_contact_col = 'Sales Contact'
 edge_credits_col = 'Edge Credits'
 
+external_survey_url = 'tbc'
+prize_draw_entries = '1'
+qf_outcome_reward_id = 'Disqualified Survey - Regular Prize Draw'
+so_outcome_reward_id = 'Disqualified Survey - Regular Prize Draw'
+comp_outcome_reward_id = 'Completed Survey - Regular Prize Draw'
+comp_secondary_reward_type = 'Credits'
+
+# TODO: create project dir - a directory in the appropriate client folder
+# TODO: whilst on page, capture 3 x redirects and export them into an excel file in project dir
 
 
 # TODO: import xlsm to sqlite
