@@ -15,9 +15,31 @@ logging.debug('Start of program')
 logging.debug(f'Current cwd = {os.getcwd()}')
 
 p_number_to_search = 'P-46240'
-p_number_col = 'SE Project Number'
+date_example = "07/03/2019 00:00:00"
+# TODO: code to create Start Date (today's date) and End Date (last day of next month)
+
+qf_msg = cfg.qf_msg
+so_msg = cfg.so_msg
+comp_msg = cfg.comp_msg
+
+
+survey_name_col = 'Survey Name'
 topic_col = 'Topic'
+p_number_col = 'SE Project Number'
+expected_loi_col = 'Expected LOI'
+client_name_col = 'Client name'
+
+
+
+
+
+
 sales_contact_col = 'Sales Contact'
+
+
+edge_credits_col = 'Edge Credits'
+
+
 
 # TODO: import xlsm to sqlite
 
@@ -30,15 +52,14 @@ table_name = "PPT"
 conn.commit()
 
 
-# TODO: lookup Title and other variables corresponding to project number of interest
+# TODO: using example P-number, look up all variables of interest
 
 # 1) Contents of all columns for row that match a certain value in 1 column
-c.execute('SELECT ("{coi}") FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=p_number_col, coi=topic_col, scn=p_number_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
+c.execute('SELECT "{coi1}","{coi2}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=p_number_col, coi1=topic_col, coi2=sales_contact_col, scn=p_number_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
 all_rows = c.fetchall()
 print(all_rows)
 
 
-# TODO: 
 
 
 
