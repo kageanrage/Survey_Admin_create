@@ -98,45 +98,59 @@ edge_credits = int(all_rows[0][5])
 def login(driv):
     driv.get(cfg.assign_URL)  # use selenium webdriver to open web browser and desired URL from config file
     email_elem = driv.find_element_by_id('UserName')  # find the 'Username' text box on web page using its element ID
-    email_elem.send_keys(cfg.uname)  # enter username from config file
+    driv.execute_script("document.getElementById('UserName').value = '" + str(cfg.uname) + "';")
+    # email_elem.send_keys(cfg.uname)  # enter username from config file
     pass_elem = driv.find_element_by_id('Password')  # find the 'Password' text box using its element ID
-    pass_elem.send_keys(cfg.pwd)  # enter password from config file
+    driv.execute_script("document.getElementById('Password').value = '" + str(cfg.pwd) + "';")
+    # pass_elem.send_keys(cfg.pwd)  # enter password from config file
     pass_elem.submit()
     time.sleep(2)   # wait 2 seconds for the login process to take place (unsure if this is necessary)
 
 
 def enter_data(driv, surveyname):
     try:  # structured as try / except statement in case something's gone wrong
-        driv.find_element_by_id('Name').send_keys(surveyname)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
-        driv.find_element_by_id('Status').send_keys(status)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
-        driv.find_element_by_id('Title').send_keys(topic)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
-        # TODO: T&C Upload section
-        driv.find_element_by_id('ProjectIONumber').send_keys(p_number_to_search)  # NB REPLACE WITH REAL P NUMBER
-        driv.find_element_by_id('ExpectedLength').send_keys(expected_loi)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
-        driv.find_element_by_id('ClientCompanyName').send_keys(client_name)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
-        driv.find_element_by_id('ExternalSurveyUrl').send_keys(external_survey_url)
-        driv.find_element_by_id('StartDate').send_keys(start_date)
-        driv.find_element_by_id('EndDate').send_keys(end_date)
-        driv.find_element_by_id('OutcomeFull').send_keys(qf_msg)
-        driv.find_element_by_id('OutcomeScreened').send_keys(so_msg)
-        driv.find_element_by_id('OutcomeComplete').send_keys(comp_msg)
-        driv.find_element_by_id('OutcomeFullRewardValue').send_keys(prize_draw_entries)
-        driv.find_element_by_id('OutcomeScreenedRewardValue').send_keys(prize_draw_entries)
-        driv.find_element_by_id('OutcomeCompleteRewardValue').send_keys(prize_draw_entries)
-        driv.find_element_by_id('FullOutcomeRewardId').send_keys(qf_outcome_reward_id)
-        driv.find_element_by_id('ScreenedOutcomeRewardId').send_keys(so_outcome_reward_id)
-        driv.find_element_by_id('CompleteOutcomeRewardId').send_keys(comp_outcome_reward_id)
-        driv.find_element_by_id('OutcomeCompleteSecondaryRewardValue').send_keys(edge_credits)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
-        driv.find_element_by_id('OutcomeCompleteSecondaryRewardType').send_keys(comp_secondary_reward_type)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
+        driv.execute_script("document.getElementById('Name').value = '" + str(surveyname) + "';")
+        # driv.find_element_by_id('Status').send_keys(status)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
+        driv.execute_script("document.getElementById('Status').value = '" + str(status) + "';")
+        # driv.find_element_by_id('Title').send_keys(topic)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
+        driv.execute_script("document.getElementById('Title').value = '" + str(topic) + "';")
+        # # TODO: T&C Upload section
+        # driv.find_element_by_id('ProjectIONumber').send_keys(p_number_to_search)  # NB REPLACE WITH REAL P NUMBER
+        driv.execute_script("document.getElementById('ProjectIONumber').value = '" + str(p_number_to_search) + "';")
+        # driv.find_element_by_id('ExpectedLength').send_keys(expected_loi)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
+        driv.execute_script("document.getElementById('ExpectedLength').value = '" + str(expected_loi) + "';")
+        # driv.find_element_by_id('ClientCompanyName').send_keys(client_name)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
+        driv.execute_script("document.getElementById('ClientCompanyName').value = '" + str(client_name) + "';")
+        # driv.find_element_by_id('ExternalSurveyUrl').send_keys(external_survey_url)
+        driv.execute_script("document.getElementById('ExternalSurveyUrl').value = '" + str(external_survey_url) + "';")
+        # driv.find_element_by_id('StartDate').send_keys(start_date)
+        driv.execute_script("document.getElementById('StartDate').value = '" + str(start_date) + "';")
+        # driv.find_element_by_id('EndDate').send_keys(end_date)
+        driv.execute_script("document.getElementById('EndDate').value = '" + str(end_date) + "';")
+        # driv.find_element_by_id('OutcomeFull').send_keys(qf_msg)
+        driv.execute_script("document.getElementById('OutcomeFull').value = '" + str(qf_msg) + "';")
+        # driv.find_element_by_id('OutcomeScreened').send_keys(so_msg)
+        driv.execute_script("document.getElementById('OutcomeScreened').value = '" + str(so_msg) + "';")
+        # driv.find_element_by_id('OutcomeComplete').send_keys(comp_msg)
+        driv.execute_script("document.getElementById('OutcomeComplete').value = '" + str(comp_msg) + "';")
+        # driv.find_element_by_id('OutcomeFullRewardValue').send_keys(prize_draw_entries)
+        driv.execute_script("document.getElementById('OutcomeFullRewardValue').value = '" + str(prize_draw_entries) + "';")
+        # driv.find_element_by_id('OutcomeScreenedRewardValue').send_keys(prize_draw_entries)
+        driv.execute_script("document.getElementById('OutcomeScreenedRewardValue').value = '" + str(prize_draw_entries) + "';")
+        # driv.find_element_by_id('OutcomeCompleteRewardValue').send_keys(prize_draw_entries)
+        driv.execute_script("document.getElementById('OutcomeCompleteRewardValue').value = '" + str(prize_draw_entries) + "';")
+        # driv.find_element_by_id('FullOutcomeRewardId').send_keys(qf_outcome_reward_id)
+        driv.execute_script("document.getElementById('FullOutcomeRewardId').value = '" + str(qf_outcome_reward_id) + "';")
+        # driv.find_element_by_id('ScreenedOutcomeRewardId').send_keys(so_outcome_reward_id)
+        driv.execute_script("document.getElementById('ScreenedOutcomeRewardId').value = '" + str(so_outcome_reward_id) + "';")
+        # driv.find_element_by_id('CompleteOutcomeRewardId').send_keys(comp_outcome_reward_id)
+        driv.execute_script("document.getElementById('CompleteOutcomeRewardId').value = '" + str(comp_outcome_reward_id) + "';")
+        # driv.find_element_by_id('OutcomeCompleteSecondaryRewardValue').send_keys(edge_credits)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
+        driv.execute_script("document.getElementById('OutcomeCompleteSecondaryRewardValue').value = '" + str(edge_credits) + "';")
+        # driv.find_element_by_id('OutcomeCompleteSecondaryRewardType').send_keys(comp_secondary_reward_type)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
         # TODO: replace above 'send_keys' with this to speed up: driver.execute_script("document.getElementById('idName').setAttribute('value','text_to_put')
 
-        # reas_elem = driv.find_element_by_id('Reason')  # find the 'Reason' text box on web page using its element ID
-        # reas_elem.clear()  # delete any text present in that field
-        # reas_elem.send_keys(reas)  # enter Reason string
-        # quan_elem = driv.find_element_by_id('Quantity')  # find the 'Quantity' text box on web page using its element ID
-        # quan_elem.clear()  # delete any text present in that field
-        # quan_elem.send_keys(quan)  # enter Quantity string
-        driv.send_keys(Keys.ENTER)  # Press Enter key
+        # driv.send_keys(Keys.ENTER)  # Press Enter key
     except:
         print(f"(in enter data function) - issue arose.")
 
