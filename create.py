@@ -76,14 +76,14 @@ table_name = "PPT"
 conn.commit()
 
 
-# TODO: using example P-number, look up all variables of interest
+# TODO: using example P-number, look up all variables of interest in the SQL database
 
 # 1) Contents of all columns for row that match a certain value in 1 column
 c.execute('SELECT "{coi1}","{coi2}","{coi3}","{coi4}","{coi5}","{coi6}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=p_number_col, coi1=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, scn=p_number_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
 all_rows = c.fetchall()
 # print(all_rows)
 
-survey_name = all_rows[0][0]
+survey_name = all_rows[0][0]  # assign outputs to variable names
 topic = all_rows[0][1]
 expected_loi = all_rows[0][2]
 client_name = all_rows[0][3]
@@ -92,6 +92,64 @@ edge_credits = all_rows[0][5]
 
 
 # TODO: open web browser, navigate to Create Survey page
+
+
+def login(driv):
+    driv.get(cfg.assign_URL)  # use selenium webdriver to open web browser and desired URL from config file
+    email_elem = driv.find_element_by_id('UserName')  # find the 'Username' text box on web page using its element ID
+    email_elem.send_keys(cfg.uname)  # enter username from config file
+    pass_elem = driv.find_element_by_id('Password')  # find the 'Password' text box using its element ID
+    pass_elem.send_keys(cfg.pwd)  # enter password from config file
+    pass_elem.submit()
+    time.sleep(2)   # wait 2 seconds for the login process to take place (unsure if this is necessary)
+
+
+def enter_data(driv, surveyname):
+    try:  # structured as try / except statement in case something's gone wrong
+        guid_elem = driv.find_element_by_id('Name')  # find the 'Survey name' text box on web page using its element ID
+        # guid_elem.clear()  # delete any text present in that field
+        guid_elem.send_keys(surveyname)  # enter survey name string
+        # reas_elem = driv.find_element_by_id('Reason')  # find the 'Reason' text box on web page using its element ID
+        # reas_elem.clear()  # delete any text present in that field
+        # reas_elem.send_keys(reas)  # enter Reason string
+        # quan_elem = driv.find_element_by_id('Quantity')  # find the 'Quantity' text box on web page using its element ID
+        # quan_elem.clear()  # delete any text present in that field
+        # quan_elem.send_keys(quan)  # enter Quantity string
+        # quan_elem.send_keys(Keys.ENTER)  # Press Enter key
+    except:
+        print(f"(in enter data function) - issue arose.")
+
+
+def grab_redirects(driv):
+    try:  # structured as try / except statement in case something's gone wrong
+        quota_full_url = driv.find_element_by_id('OutcomeFullUrl').get_attribute('value')  # find the right element and grab URL from box
+        screened_url = driv.find_element_by_id('OutcomeScreenedUrl').get_attribute('value')  # find the right element and grab URL from box
+        complete_url = driv.find_element_by_id('OutcomeCompleteUrl').get_attribute('value')  # find the right element and grab URL from box
+        quota_full_url = quota_full_url[0:83]  # trim off the last 3 characters
+        screened_url = screened_url[0:83]  # trim off the last 3 characters
+        complete_url = complete_url[0:83]  # trim off the last 3 characters
+        return quota_full_url, screened_url, complete_url
+    except:
+        print(f"(in enter data function) - issue arose.")
+
+
+chrome_path = cfg.chrome_path  # location of chromedriver.exe on local drive
+driver = webdriver.Chrome(chrome_path)  # specify webdriver (selenium)
+login(driver)
+
+enter_data(driver, survey_name)
+grab_redirects(driver)
+
+
+
+
+
+
+
+
+
+
+
 
 
 # TODO: capture redirect info
