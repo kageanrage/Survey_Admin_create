@@ -89,7 +89,7 @@ topic = all_rows[0][1]
 expected_loi = all_rows[0][2]
 client_name = all_rows[0][3]
 sales_contact = all_rows[0][4]
-edge_credits = all_rows[0][5]
+edge_credits = int(all_rows[0][5])
 
 
 # TODO: open web browser, navigate to Create Survey page
@@ -114,31 +114,21 @@ def enter_data(driv, surveyname):
         driv.find_element_by_id('ProjectIONumber').send_keys(p_number_to_search)  # NB REPLACE WITH REAL P NUMBER
         driv.find_element_by_id('ExpectedLength').send_keys(expected_loi)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
         driv.find_element_by_id('ClientCompanyName').send_keys(client_name)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
-        driv.find_element_by_id('OutcomeCompleteSecondaryRewardValue').send_keys(external_survey_url)
+        driv.find_element_by_id('ExternalSurveyUrl').send_keys(external_survey_url)
         driv.find_element_by_id('StartDate').send_keys(start_date)
         driv.find_element_by_id('EndDate').send_keys(end_date)
         driv.find_element_by_id('OutcomeFull').send_keys(qf_msg)
         driv.find_element_by_id('OutcomeScreened').send_keys(so_msg)
         driv.find_element_by_id('OutcomeComplete').send_keys(comp_msg)
         driv.find_element_by_id('OutcomeFullRewardValue').send_keys(prize_draw_entries)
-        driv.find_element_by_id('OutcomeScreenedRewardValue').send_keys(edge_credits)
-        driv.find_element_by_id('OutcomeCompleteRewardValue').send_keys(edge_credits)   
-
-
+        driv.find_element_by_id('OutcomeScreenedRewardValue').send_keys(prize_draw_entries)
+        driv.find_element_by_id('OutcomeCompleteRewardValue').send_keys(prize_draw_entries)
+        driv.find_element_by_id('FullOutcomeRewardId').send_keys(qf_outcome_reward_id)
+        driv.find_element_by_id('ScreenedOutcomeRewardId').send_keys(so_outcome_reward_id)
+        driv.find_element_by_id('CompleteOutcomeRewardId').send_keys(comp_outcome_reward_id)
         driv.find_element_by_id('OutcomeCompleteSecondaryRewardValue').send_keys(edge_credits)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
-
-
-
-
-
-        driv.find_element_by_id('OutcomeCompleteSecondaryRewardValue').send_keys(prize_draw_entries)
-
-
-
-        driv.find_element_by_id('OutcomeCompleteSecondaryRewardValue').send_keys(edge_credits)
-        driv.find_element_by_id('OutcomeCompleteSecondaryRewardValue').send_keys(edge_credits)
-        driv.find_element_by_id('OutcomeCompleteSecondaryRewardValue').send_keys(edge_credits)
-        driv.find_element_by_id('OutcomeCompleteSecondaryRewardValue').send_keys(edge_credits)
+        driv.find_element_by_id('OutcomeCompleteSecondaryRewardType').send_keys(comp_secondary_reward_type)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
+        # TODO: replace above 'send_keys' with this to speed up: driver.execute_script("document.getElementById('idName').setAttribute('value','text_to_put')
 
         # reas_elem = driv.find_element_by_id('Reason')  # find the 'Reason' text box on web page using its element ID
         # reas_elem.clear()  # delete any text present in that field
@@ -146,7 +136,7 @@ def enter_data(driv, surveyname):
         # quan_elem = driv.find_element_by_id('Quantity')  # find the 'Quantity' text box on web page using its element ID
         # quan_elem.clear()  # delete any text present in that field
         # quan_elem.send_keys(quan)  # enter Quantity string
-        # quan_elem.send_keys(Keys.ENTER)  # Press Enter key
+        driv.send_keys(Keys.ENTER)  # Press Enter key
     except:
         print(f"(in enter data function) - issue arose.")
 
