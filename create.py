@@ -7,6 +7,7 @@ import datetime
 import calendar
 from dateutil.relativedelta import *
 import subprocess
+import pyautogui
 
 
 
@@ -111,51 +112,34 @@ def login(driv):
 
 def enter_data(driv):
     driv.execute_script("document.getElementById('Name').value = '" + str(survey_name) + "';")
-    # driv.find_element_by_id('Status').send_keys(status)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
     driv.execute_script("document.getElementById('Status').value = '" + str(status) + "';")
-    # driv.find_element_by_id('Title').send_keys(topic)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
     driv.execute_script("document.getElementById('Title').value = '" + str(topic) + "';")
     # # TODO: T&C Upload section
-    # driv.find_element_by_id('ProjectIONumber').send_keys(p_number_to_search)  # NB REPLACE WITH REAL P NUMBER
     driv.execute_script("document.getElementById('ProjectIONumber').value = '" + str(p_number_to_search) + "';")
-    # driv.find_element_by_id('ExpectedLength').send_keys(expected_loi)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
     driv.execute_script("document.getElementById('ExpectedLength').value = '" + str(expected_loi) + "';")
-    # driv.find_element_by_id('ClientCompanyName').send_keys(client_name)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
     driv.execute_script("document.getElementById('ClientCompanyName').value = '" + str(client_name) + "';")
-    # driv.find_element_by_id('ExternalSurveyUrl').send_keys(external_survey_url)
     driv.execute_script("document.getElementById('ExternalSurveyUrl').value = '" + str(external_survey_url) + "';")
-    # driv.find_element_by_id('StartDate').send_keys(start_date)
     driv.execute_script("document.getElementById('StartDate').value = '" + str(start_date) + "';")
-    # driv.find_element_by_id('EndDate').send_keys(end_date)
     driv.execute_script("document.getElementById('EndDate').value = '" + str(end_date) + "';")
-    # driv.find_element_by_id('OutcomeFull').send_keys(qf_msg)
     driv.execute_script("document.getElementById('OutcomeFull').value = '" + str(qf_msg) + "';")
-    # command = "document.getElementById('OutcomeFull').value = '" + str(qf_msg) + "';"
-    # print(command)
-    # driv.execute_script(command)
-    # driv.find_element_by_id('OutcomeScreened').send_keys(so_msg)
     driv.execute_script("document.getElementById('OutcomeScreened').value = '" + str(so_msg) + "';")
-    # driv.find_element_by_id('OutcomeComplete').send_keys(comp_msg)
     driv.execute_script("document.getElementById('OutcomeComplete').value = '" + str(comp_msg) + "';")
-    # driv.find_element_by_id('OutcomeFullRewardValue').send_keys(prize_draw_entries)
     driv.execute_script("document.getElementById('OutcomeFullRewardValue').value = '" + str(prize_draw_entries) + "';")
-    # driv.find_element_by_id('OutcomeScreenedRewardValue').send_keys(prize_draw_entries)
     driv.execute_script("document.getElementById('OutcomeScreenedRewardValue').value = '" + str(prize_draw_entries) + "';")
-    # driv.find_element_by_id('OutcomeCompleteRewardValue').send_keys(prize_draw_entries)
     driv.execute_script("document.getElementById('OutcomeCompleteRewardValue').value = '" + str(prize_draw_entries) + "';")
-    driv.find_element_by_id('FullOutcomeRewardId').send_keys(qf_outcome_reward_id)
+    driv.find_element_by_id('FullOutcomeRewardId').send_keys(qf_outcome_reward_id)  # this didn't work via JS execution method
     # driv.execute_script("document.getElementById('FullOutcomeRewardId').value = '" + str(qf_outcome_reward_id) + "';")
-    driv.find_element_by_id('ScreenedOutcomeRewardId').send_keys(so_outcome_reward_id)
+    driv.find_element_by_id('ScreenedOutcomeRewardId').send_keys(so_outcome_reward_id)  # this didn't work via JS execution method
     # driv.execute_script("document.getElementById('ScreenedOutcomeRewardId').value = '" + str(so_outcome_reward_id) + "';")
-    driv.find_element_by_id('CompleteOutcomeRewardId').send_keys(comp_outcome_reward_id)
+    driv.find_element_by_id('CompleteOutcomeRewardId').send_keys(comp_outcome_reward_id)  # this didn't work via JS execution method
     # driv.execute_script("document.getElementById('CompleteOutcomeRewardId').value = '" + str(comp_outcome_reward_id) + "';")
-    # driv.find_element_by_id('OutcomeCompleteSecondaryRewardValue').send_keys(edge_credits)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
     driv.execute_script("document.getElementById('OutcomeCompleteSecondaryRewardValue').value = '" + str(edge_credits) + "';")
-    driv.find_element_by_id('OutcomeCompleteSecondaryRewardType').send_keys(comp_secondary_reward_type)  # find the 'Survey name' text box on web page using its element ID and populate with survey name
+    driv.find_element_by_id('OutcomeCompleteSecondaryRewardType').send_keys(comp_secondary_reward_type)
     driv.find_element_by_id('TermsAndConditionsPdf').click()
-
-
-    # driv.send_keys(Keys.ENTER)  # Press Enter key
+    time.sleep(2)
+    pyautogui.typewrite(tc_filepath)  # since popup window is outside web browser, need a diff package to control
+    pyautogui.press('enter')
+    driv.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # then back to selenium
 
 
 def grab_redirects(driv):
@@ -183,19 +167,7 @@ grab_redirects(driver)
 
 
 
-
-
-
-
-
-
-
 # TODO: capture redirect info
-
-
-# TODO: input required data
-
-
 
 
 
