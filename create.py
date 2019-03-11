@@ -6,6 +6,8 @@ import pandas as pd
 import datetime
 import calendar
 from dateutil.relativedelta import *
+import subprocess
+
 
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')  # turns on logging
 # logging.disable(logging.CRITICAL)     # switches off logging when desired
@@ -38,27 +40,29 @@ def generate_dates():
 
 start_date, end_date = generate_dates()  # generates start and end dates through the function
 
+# define all variables here
 qf_msg = cfg.qf_msg
 so_msg = cfg.so_msg
 comp_msg = cfg.comp_msg
 
+# varied for each project
+p_number_col = 'SE Project Number'
+
+# columns of interest for SQL query
 survey_name_col = 'Survey Name'
 topic_col = 'Topic'
-p_number_col = 'SE Project Number'
 expected_loi_col = 'Expected LOI'
 client_name_col = 'Client name'
 sales_contact_col = 'Sales Contact'
 edge_credits_col = 'Edge Credits'
 
+# Fixed variables - same for all projects
 external_survey_url = 'tbc'
 prize_draw_entries = '1'
 qf_outcome_reward_id = 'Disqualified Survey - Regular Prize Draw'
 so_outcome_reward_id = 'Disqualified Survey - Regular Prize Draw'
 comp_outcome_reward_id = 'Completed Survey - Regular Prize Draw'
 comp_secondary_reward_type = 'Credits'
-
-# TODO: create project dir - a directory in the appropriate client folder
-# TODO: whilst on page, capture 3 x redirects and export them into an excel file in project dir
 
 
 # TODO: import xlsm to sqlite
@@ -75,12 +79,36 @@ conn.commit()
 # TODO: using example P-number, look up all variables of interest
 
 # 1) Contents of all columns for row that match a certain value in 1 column
-c.execute('SELECT "{coi1}","{coi2}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=p_number_col, coi1=topic_col, coi2=sales_contact_col, scn=p_number_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
+c.execute('SELECT "{coi1}","{coi2}","{coi3}","{coi4}","{coi5}","{coi6}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=p_number_col, coi1=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, scn=p_number_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
 all_rows = c.fetchall()
-print(all_rows)
+# print(all_rows)
+
+survey_name = all_rows[0][0]
+topic = all_rows[0][1]
+expected_loi = all_rows[0][2]
+client_name = all_rows[0][3]
+sales_contact = all_rows[0][4]
+edge_credits = all_rows[0][5]
+
+
+# TODO: open web browser, navigate to Create Survey page
+
+
+# TODO: capture redirect info
+
+
+# TODO: input required data
 
 
 
+
+
+# TODO: create project dir - a directory in the appropriate client folder - NB will have to occur after DB is queried
+# new_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name  # clientname + projectname to be redefined by SQL queries
+# print(new_dir_path)
+# os.mkdir(new_dir_path)  # creates new directory
+# subprocess.Popen(f'explorer "{new_dir_path}"')  # opens new dir in windows explorer
+# TODO: create excel file with redirects
 
 
 conn.close()
