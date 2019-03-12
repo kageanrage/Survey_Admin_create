@@ -4,6 +4,8 @@ from selenium.webdriver.common.keys import Keys
 from config import Config   # this imports the config file where the private data sits
 import pandas as pd
 from dateutil.relativedelta import *
+import openpyxl
+from openpyxl.styles import Font, Border, Side
 
 
 # logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')  # turns on logging
@@ -118,8 +120,42 @@ def establish_project_dir():
     print(f'Complete: {comp}')
     new_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name
     logging.debug("Creating new directory:", new_dir_path)
-    os.mkdir(new_dir_path)  # creates new directory
+    if not os.path.exists(new_dir_path):
+        os.mkdir(new_dir_path)  # creates new directory
     subprocess.Popen(f'explorer "{new_dir_path}"')  # opens new dir in windows explorer
+    create_redirects_xls(new_dir_path, qf, so, comp)
+
+
+def create_redirects_xls(path, q, s, c):
+    wb = openpyxl.Workbook()
+    sheet1 = wb.active
+    sheet1.title = f'Redirects - {p_number_to_search}'
+    sheet1['A1'] = f'Redirects for {p_number_to_search} - {survey_name}'
+    sheet1['B2'] = 'Quota Full:'
+    sheet1['B3'] = 'Screened:'
+    sheet1['B4'] = 'Complete:'
+    sheet1['C2'] = q
+    sheet1['C3'] = s
+    sheet1['C4'] = c
+    sheet1.column_dimensions['B'].width = 15
+    sheet1.column_dimensions['C'].width = 95
+    emboldened = Font(bold=True)
+    sheet1['A1'].font = emboldened
+    sheet1['B2'].font = emboldened
+    sheet1['B3'].font = emboldened
+    sheet1['B4'].font = emboldened
+    thin = Side(border_style='thin')
+    surrounded = Border(top=thin, left=thin, right=thin, bottom=thin)
+    sheet1['B2'].border = surrounded
+    sheet1['B3'].border = surrounded
+    sheet1['B4'].border = surrounded
+    sheet1['C2'].border = surrounded
+    sheet1['C3'].border = surrounded
+    sheet1['C4'].border = surrounded
+    wb_path_name_ext = path + "\\" + p_number_to_search + " redirects.xlsx"
+    wb.save(wb_path_name_ext)
+    subprocess.Popen(f'explorer "{wb_path_name_ext}"')  # opens file in windows
+
 
 def enter_data():
     driver.execute_script("document.getElementById('Name').value = '" + str(survey_name) + "';")
@@ -152,6 +188,10 @@ def enter_data():
     driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
 
 
+def clean_up():
+    send2trash.send2trash(cfg.live_excel_filename + ".db")
+
+
 chrome_path = cfg.chrome_path  # location of chromedriver.exe on local drive
 driver = webdriver.Chrome(chrome_path)  # specify webdriver (selenium)
 
@@ -161,14 +201,8 @@ establish_project_dir()
 # enter_data()
 
 
-
-# TODO: capture redirect info
-
-
-# TODO: create project dir - a directory in the appropriate client folder - NB will have to occur after DB is queried
-
-# TODO: create excel file with redirects
-
-
 conn.close()
+
+clean_up()
+
 
