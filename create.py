@@ -12,12 +12,8 @@ from dateutil.relativedelta import *
 cfg = Config()  # create an instance of the Config class, essentially brings private config data into play
 os.chdir(cfg.cwd)  # change the current working directory to the one stipulated in config file
 
-# logging.debug('Imported modules')
-# logging.debug('Start of program')
-# logging.debug(f'Current cwd = {os.getcwd()}')
 
-p_number_to_search = 'P-46251'  # just used in the testing phase
-# date_example = "07/03/2019 00:00:00"  # not coded, just a visual reminder of date format requirement
+p_number_to_search = 'P-46251'
 
 
 def generate_dates():
@@ -63,34 +59,20 @@ comp_outcome_reward_id = 'Completed Survey - Regular Prize Draw'
 comp_secondary_reward_type = 'Credits'
 tc_filepath = cfg.tc_filepath
 
-
-# TODO: Replace above chunk with a function which does the following:
-# TODO: make copy of live excel file
-local_filename = 'local_file'
-local_file_name_path = os.getcwd() + "\\" + local_filename
-local_file_name_path_ext = local_file_name_path + ".xlsm"
-
 live_excel_name_path = cfg.live_excel_file_path + "\\" + cfg.live_excel_filename
 live_excel_file_name_path_ext = live_excel_name_path + ".xlsm"
 
 
-shutil.copyfile(live_excel_file_name_path_ext, local_file_name_path_ext)  # ERROR - must be closed to avoid permission error
-print(live_excel_file_name_path_ext)
-print(local_file_name_path_ext)
-
-# TODO: use it for the purposes of this script
 # TODO: import xlsm to sqlite
 
-conn = sqlite3.connect(local_filename + ".db")
+conn = sqlite3.connect(cfg.live_excel_filename + ".db")
 c = conn.cursor()
-df = pd.read_excel(local_file_name_path_ext, sheet_name='PPT')  # create dataframe from xlsm content
+
+df = pd.read_excel(live_excel_file_name_path_ext, sheet_name='PPT')  # create dataframe from xlsm content
 df.to_sql('PPT', conn)  # populate database with dataframe content
-table_name = "PPT"
 conn.commit()
 
-# TODO: delete the copy
-# send2trash.send2trash(local_file_name_path_ext)
-
+table_name = "PPT"
 
 
 # TODO: using example P-number, look up all variables of interest in the SQL database
@@ -98,7 +80,6 @@ conn.commit()
 # 1) Contents of all columns for row that match a certain value in 1 column
 c.execute('SELECT "{coi1}","{coi2}","{coi3}","{coi4}","{coi5}","{coi6}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=p_number_col, coi1=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, scn=p_number_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
 all_rows = c.fetchall()
-# print(all_rows)
 
 survey_name = all_rows[0][0]  # assign outputs to variable names
 topic = all_rows[0][1]
@@ -113,21 +94,37 @@ edge_credits = int(all_rows[0][5])
 
 def login():
     driver.get(cfg.assign_URL)  # use selenium webdriver to open web browser and desired URL from config file
-    email_elem = driver.find_element_by_id('UserName')  # find the 'Username' text box on web page using its element ID
-    driver.execute_script("document.getElementById('UserName').value = '" + str(cfg.uname) + "';")
-    # email_elem.send_keys(cfg.uname)  # enter username from config file
+    driver.execute_script("document.getElementById('UserName').value = '" + str(cfg.uname) + "';")  # insert username
+    driver.execute_script("document.getElementById('Password').value = '" + str(cfg.pwd) + "';")  # insert password
     pass_elem = driver.find_element_by_id('Password')  # find the 'Password' text box using its element ID
-    driver.execute_script("document.getElementById('Password').value = '" + str(cfg.pwd) + "';")
-    # pass_elem.send_keys(cfg.pwd)  # enter password from config file
-    pass_elem.submit()
-    time.sleep(2)   # wait 2 seconds for the login process to take place (unsure if this is necessary)
+    pass_elem.submit()  # submit password
+    time.sleep(2)   # wait 2 seconds for the login process to take place (tested and this is necessary)
 
+
+def grab_redirects():
+    quota_full_url = driver.find_element_by_id('OutcomeFullUrl').get_attribute('value')  # find the right element and grab URL from box
+    screened_url = driver.find_element_by_id('OutcomeScreenedUrl').get_attribute('value')  # find the right element and grab URL from box
+    complete_url = driver.find_element_by_id('OutcomeCompleteUrl').get_attribute('value')  # find the right element and grab URL from box
+    quota_full_url = quota_full_url[0:83]  # trim off the last 3 characters
+    screened_url = screened_url[0:83]  # trim off the last 3 characters
+    complete_url = complete_url[0:83]  # trim off the last 3 characters
+    return quota_full_url, screened_url, complete_url
+
+
+def establish_project_dir():
+    qf, so, comp = grab_redirects()
+    print(f'Quota Full: {qf}')
+    print(f'Screened: {so}')
+    print(f'Complete: {comp}')
+    new_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name
+    logging.debug("Creating new directory:", new_dir_path)
+    os.mkdir(new_dir_path)  # creates new directory
+    subprocess.Popen(f'explorer "{new_dir_path}"')  # opens new dir in windows explorer
 
 def enter_data():
     driver.execute_script("document.getElementById('Name').value = '" + str(survey_name) + "';")
     driver.execute_script("document.getElementById('Status').value = '" + str(status) + "';")
     driver.execute_script("document.getElementById('Title').value = '" + str(topic) + "';")
-    # # TODO: T&C Upload section
     driver.execute_script("document.getElementById('ProjectIONumber').value = '" + str(p_number_to_search) + "';")
     driver.execute_script("document.getElementById('ExpectedLength').value = '" + str(expected_loi) + "';")
     driver.execute_script("document.getElementById('ClientCompanyName').value = '" + str(client_name) + "';")
@@ -152,38 +149,24 @@ def enter_data():
     time.sleep(2)
     pyautogui.typewrite(tc_filepath)  # since popup window is outside web browser, need a diff package to control
     pyautogui.press('enter')
-    driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # then back to selenium
-
-
-def grab_redirects():
-    quota_full_url = driver.find_element_by_id('OutcomeFullUrl').get_attribute('value')  # find the right element and grab URL from box
-    screened_url = driver.find_element_by_id('OutcomeScreenedUrl').get_attribute('value')  # find the right element and grab URL from box
-    complete_url = driver.find_element_by_id('OutcomeCompleteUrl').get_attribute('value')  # find the right element and grab URL from box
-    quota_full_url = quota_full_url[0:83]  # trim off the last 3 characters
-    screened_url = screened_url[0:83]  # trim off the last 3 characters
-    complete_url = complete_url[0:83]  # trim off the last 3 characters
-    print(f'Quota Full: {quota_full_url}')
-    print(f'Screened: {screened_url}')
-    print(f'Complete: {complete_url}')
-    return quota_full_url, screened_url, complete_url
+    driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
 
 
 chrome_path = cfg.chrome_path  # location of chromedriver.exe on local drive
 driver = webdriver.Chrome(chrome_path)  # specify webdriver (selenium)
-login()
 
-enter_data()
-grab_redirects()
+login()
+establish_project_dir()
+# grab_redirects()
+# enter_data()
+
 
 
 # TODO: capture redirect info
 
 
 # TODO: create project dir - a directory in the appropriate client folder - NB will have to occur after DB is queried
-# new_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name  # clientname + projectname to be redefined by SQL queries
-# print(new_dir_path)
-# os.mkdir(new_dir_path)  # creates new directory
-# subprocess.Popen(f'explorer "{new_dir_path}"')  # opens new dir in windows explorer
+
 # TODO: create excel file with redirects
 
 
