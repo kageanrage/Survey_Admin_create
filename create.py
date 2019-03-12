@@ -115,19 +115,18 @@ def grab_redirects():
 
 def establish_project_dir():
     qf, so, comp = grab_redirects()
-    print(f'Quota Full: {qf}')
-    print(f'Screened: {so}')
-    print(f'Complete: {comp}')
-    new_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name
-    logging.debug("Creating new directory:", new_dir_path)
-    if not os.path.exists(new_dir_path):
-        os.mkdir(new_dir_path)  # creates new directory
-    subprocess.Popen(f'explorer "{new_dir_path}"')  # opens new dir in windows explorer
-    create_redirects_xls(new_dir_path, qf, so, comp)
+    # print(f'Quota Full: {qf}')
+    # print(f'Screened: {so}')
+    # print(f'Complete: {comp}')
+    logging.debug("Creating new directory:", new_project_dir_path)
+    if not os.path.exists(new_project_dir_path):
+        os.mkdir(new_project_dir_path)  # creates new directory
+    create_redirects_xls(qf, so, comp)
 
 
-def create_redirects_xls(path, q, s, c):
+def create_redirects_xls(q, s, c):
     wb = openpyxl.Workbook()
+
     sheet1 = wb.active
     sheet1.title = f'Redirects - {p_number_to_search}'
     sheet1['A1'] = f'Redirects for {p_number_to_search} - {survey_name}'
@@ -139,11 +138,13 @@ def create_redirects_xls(path, q, s, c):
     sheet1['C4'] = c
     sheet1.column_dimensions['B'].width = 15
     sheet1.column_dimensions['C'].width = 95
+
     emboldened = Font(bold=True)
     sheet1['A1'].font = emboldened
     sheet1['B2'].font = emboldened
     sheet1['B3'].font = emboldened
     sheet1['B4'].font = emboldened
+
     thin = Side(border_style='thin')
     surrounded = Border(top=thin, left=thin, right=thin, bottom=thin)
     sheet1['B2'].border = surrounded
@@ -152,9 +153,8 @@ def create_redirects_xls(path, q, s, c):
     sheet1['C2'].border = surrounded
     sheet1['C3'].border = surrounded
     sheet1['C4'].border = surrounded
-    wb_path_name_ext = path + "\\" + p_number_to_search + " redirects.xlsx"
-    wb.save(wb_path_name_ext)
-    subprocess.Popen(f'explorer "{wb_path_name_ext}"')  # opens file in windows
+
+    wb.save(redirects_wb_path_name_ext)
 
 
 def enter_data():
@@ -185,7 +185,8 @@ def enter_data():
     time.sleep(2)
     pyautogui.typewrite(tc_filepath)  # since popup window is outside web browser, need a diff package to control
     pyautogui.press('enter')
-    driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
+    # driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
+    ###### LAST ROW COMMENTED OUT TO AVOID ACTUAL PROJECT CREATION  ###########
 
 
 def clean_up():
@@ -194,12 +195,15 @@ def clean_up():
 
 chrome_path = cfg.chrome_path  # location of chromedriver.exe on local drive
 driver = webdriver.Chrome(chrome_path)  # specify webdriver (selenium)
+new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name
+redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number_to_search + " redirects.xlsx"
 
 login()
 establish_project_dir()
-# grab_redirects()
-# enter_data()
+enter_data()
 
+subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer
+subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows
 
 conn.close()
 
