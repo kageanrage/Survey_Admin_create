@@ -18,7 +18,7 @@ os.chdir(cfg.cwd)  # change the current working directory to the one stipulated 
 p_number_to_search = 'P-46251'
 
 
-def generate_dates():
+def generate_dates_sa():
     now = datetime.datetime.now()  # current date and time as datetime object
     start_date_string = now.strftime("%d/%m/%Y %H:%M:%S")  # current date and time as string
     # print(f'Start Date is {start_date_string}')
@@ -33,7 +33,7 @@ def generate_dates():
     return start_date_string, end_date_string
 
 
-start_date, end_date = generate_dates()  # generates start and end dates through the function
+start_date, end_date = generate_dates_sa()  # generates start and end dates through the function
 
 # define all variables here
 qf_msg = cfg.qf_msg
@@ -77,11 +77,44 @@ conn.commit()
 table_name = "PPT"
 
 
-# TODO: using example P-number, look up all variables of interest in the SQL database
+# TODO: add as a previous step - creating the job in Zoho
+##### This is where the code to pull data for Zoho project creation goes  #####################
 
-# 1) Contents of all columns for row that match a certain value in 1 column
+# Zoho generates the p-number so will need to use something else as the lookup variable/index - e.g. project name
+# If index = project name, how will I ensure the name is unique and the right project data is grabbed? Could use assertion that 'Close Month' is in last/this/next month
+# variables needed: proposal date, client name, proposal date sent, closing date aka (final day of) close month, stage, survey name, industry, account type, campaign start date, campaign end date
+close_month_db_example = "2019-03-01 00:00:00"  # type = 'text'
+
+# Steps:
+# define all the variables
+# using project name (verifying close month), check database and grab relevant row data
+# open Chrome instance, go to Zoho new project URL, insert data
+
+
+# TODO: define variables for Zoho
+proposal_date_sent = "23/02/2019"  # placeholder - calculate in function as first day of last month
+closing_date = "23/02/2019"  # placeholder - calculate in function as final day of month specified in 'Close Month' var
+account_name = ""
+
+
+
+
+
+
+
+
+
+
+
+
+
+# TODO: to prep data for Admin Survey Creation, using example P-number var, look up all variables of interest in the SQL database
+
+# 1) Contents of columns of interest for row that matches P-number
 c.execute('SELECT "{coi1}","{coi2}","{coi3}","{coi4}","{coi5}","{coi6}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=p_number_col, coi1=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, scn=p_number_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
 all_rows = c.fetchall()
+
+conn.close()
 
 survey_name = all_rows[0][0]  # assign outputs to variable names
 topic = all_rows[0][1]
@@ -91,10 +124,10 @@ sales_contact = all_rows[0][4]
 edge_credits = int(all_rows[0][5])
 
 
-# TODO: open web browser, navigate to Create Survey page
+# TODO: open web browser, navigate to Create Survey page within Survey Admin (SA)
 
 
-def login():
+def login_sa():
     driver.get(cfg.assign_URL)  # use selenium webdriver to open web browser and desired URL from config file
     driver.execute_script("document.getElementById('UserName').value = '" + str(cfg.uname) + "';")  # insert username
     driver.execute_script("document.getElementById('Password').value = '" + str(cfg.pwd) + "';")  # insert password
@@ -157,7 +190,7 @@ def create_redirects_xls(q, s, c):
     wb.save(redirects_wb_path_name_ext)
 
 
-def enter_data():
+def enter_data_sa():
     driver.execute_script("document.getElementById('Name').value = '" + str(survey_name) + "';")
     driver.execute_script("document.getElementById('Status').value = '" + str(status) + "';")
     driver.execute_script("document.getElementById('Title').value = '" + str(topic) + "';")
@@ -193,20 +226,26 @@ def clean_up():
     send2trash.send2trash(cfg.live_excel_filename + ".db")
 
 
+
+# Variable Definition
 chrome_path = cfg.chrome_path  # location of chromedriver.exe on local drive
 driver = webdriver.Chrome(chrome_path)  # specify webdriver (selenium)
 new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name
 redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number_to_search + " redirects.xlsx"
 
-login()
-establish_project_dir()
-enter_data()
 
-subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer
-subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows
 
-conn.close()
+
+########## PULLING LEVERS HERE #############
+# login_to_create_survey()  # disabled for testing other section
+# establish_project_dir()  # disabled for testing other section
+# enter_data_sa()  # disabled for testing other section
+
+# subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer
+# subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows
 
 clean_up()
+
+# TODO: (later) add project number to project tracking sheet - is this doable or will I need to open the sheet automatically and add P-number manually?
 
 
