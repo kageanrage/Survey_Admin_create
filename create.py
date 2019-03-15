@@ -15,7 +15,7 @@ cfg = Config()  # create an instance of the Config class, essentially brings pri
 os.chdir(cfg.cwd)  # change the current working directory to the one stipulated in config file
 
 
-p_number_to_search = 'P-46251'
+p_number_to_search = 'P-46257'
 
 
 def generate_dates_sa():
@@ -237,12 +237,12 @@ redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number_to_search + 
 
 
 ########## PULLING LEVERS HERE #############
-# login_to_create_survey()  # disabled for testing other section
-# establish_project_dir()  # disabled for testing other section
-# enter_data_sa()  # disabled for testing other section
+login_sa()  # disabled for testing other section
+establish_project_dir()  # disabled for testing other section
+enter_data_sa()  # disabled for testing other section
 
-# subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer
-# subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows
+subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer
+subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows
 
 clean_up()
 
