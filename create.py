@@ -8,15 +8,15 @@ import openpyxl
 from openpyxl.styles import Font, Border, Side
 
 
-# logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')  # turns on logging
+logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')  # turns on logging
 # logging.disable(logging.CRITICAL)     # switches off logging when desired
 
 cfg = Config()  # create an instance of the Config class, essentially brings private config data into play
 os.chdir(cfg.cwd)  # change the current working directory to the one stipulated in config file
 
-
-p_number_to_search = 'P-46257'
-
+# p_number_to_search = 'P-46251'  # works - pureprofile uni students
+# p_number_to_search = 'P-46240'  # also works - LSR BGS Unilever
+p_number_to_search = 'P-46256'  # also works - LSR new doesnt work
 
 def generate_dates_sa():
     now = datetime.datetime.now()  # current date and time as datetime object
@@ -34,6 +34,7 @@ def generate_dates_sa():
 
 
 start_date, end_date = generate_dates_sa()  # generates start and end dates through the function
+logging.debug(f"Dates generated - Start Date = {start_date}, End Date = {end_date}")
 
 # define all variables here
 qf_msg = cfg.qf_msg
@@ -70,9 +71,9 @@ live_excel_file_name_path_ext = live_excel_name_path + ".xlsm"
 conn = sqlite3.connect(cfg.live_excel_filename + ".db")
 c = conn.cursor()
 
-df = pd.read_excel(live_excel_file_name_path_ext, sheet_name='PPT')  # create dataframe from xlsm content
-df.to_sql('PPT', conn)  # populate database with dataframe content
-conn.commit()
+# df = pd.read_excel(live_excel_file_name_path_ext, sheet_name='PPT')  # create dataframe from xlsm content
+# df.to_sql('PPT', conn)  # populate database with dataframe content
+# conn.commit()
 
 table_name = "PPT"
 
@@ -83,7 +84,7 @@ table_name = "PPT"
 # Zoho generates the p-number so will need to use something else as the lookup variable/index - e.g. project name
 # If index = project name, how will I ensure the name is unique and the right project data is grabbed? Could use assertion that 'Close Month' is in last/this/next month
 # variables needed: proposal date, client name, proposal date sent, closing date aka (final day of) close month, stage, survey name, industry, account type, campaign start date, campaign end date
-close_month_db_example = "2019-03-01 00:00:00"  # type = 'text'
+# close_month_db_example = "2019-03-01 00:00:00"  # type = 'text'
 
 # Steps:
 # define all the variables
@@ -113,6 +114,7 @@ account_name = ""
 # 1) Contents of columns of interest for row that matches P-number
 c.execute('SELECT "{coi1}","{coi2}","{coi3}","{coi4}","{coi5}","{coi6}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=p_number_col, coi1=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, scn=p_number_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
 all_rows = c.fetchall()
+logging.debug("All_rows SQL lookup looks like this:", all_rows)
 
 conn.close()
 
@@ -122,7 +124,10 @@ expected_loi = all_rows[0][2]
 client_name = all_rows[0][3]
 sales_contact = all_rows[0][4]
 edge_credits = int(all_rows[0][5])
+queried_variables = [survey_name, topic, expected_loi, client_name, sales_contact, edge_credits]
 
+for var in queried_variables:
+    logging.debug(var)
 
 # TODO: open web browser, navigate to Create Survey page within Survey Admin (SA)
 
@@ -151,9 +156,12 @@ def establish_project_dir():
     # print(f'Quota Full: {qf}')
     # print(f'Screened: {so}')
     # print(f'Complete: {comp}')
-    logging.debug("Creating new directory:", new_project_dir_path)
+    logging.debug("Checking if project dir already exists before attempting creation", new_project_dir_path)
     if not os.path.exists(new_project_dir_path):
+        logging.debug("Dir does not already exist - attempting to create it")
         os.mkdir(new_project_dir_path)  # creates new directory
+    else:
+        logging.debug("Dir already exists - moving on to create_redirects_xls function")
     create_redirects_xls(qf, so, comp)
 
 
@@ -191,6 +199,7 @@ def create_redirects_xls(q, s, c):
 
 
 def enter_data_sa():
+    driver.find_element_by_id('Name')  # this is here just to try to trigger an error if not found
     driver.execute_script("document.getElementById('Name').value = '" + str(survey_name) + "';")
     driver.execute_script("document.getElementById('Status').value = '" + str(status) + "';")
     driver.execute_script("document.getElementById('Title').value = '" + str(topic) + "';")
@@ -241,11 +250,9 @@ login_sa()  # disabled for testing other section
 establish_project_dir()  # disabled for testing other section
 enter_data_sa()  # disabled for testing other section
 
-subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer
-subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows
-
-clean_up()
+# subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer
+# subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows
+#
+# clean_up()
 
 # TODO: (later) add project number to project tracking sheet - is this doable or will I need to open the sheet automatically and add P-number manually?
-
-
