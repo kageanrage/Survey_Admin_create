@@ -8,14 +8,14 @@ import openpyxl
 from openpyxl.styles import Font, Border, Side
 
 
-# logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')  # turns on logging
+logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')  # turns on logging
 # logging.disable(logging.CRITICAL)     # switches off logging when desired
 
 cfg = Config()  # create an instance of the Config class, essentially brings private config data into play
 os.chdir(cfg.cwd)  # change the current working directory to the one stipulated in config file
 
 
-p_number_to_search = 'P-46257'
+p_number_to_search = 'P-46258'
 
 
 def generate_dates_sa():
@@ -106,8 +106,6 @@ account_name = ""
 
 
 
-
-
 # TODO: to prep data for Admin Survey Creation, using example P-number var, look up all variables of interest in the SQL database
 
 # 1) Contents of columns of interest for row that matches P-number
@@ -116,12 +114,12 @@ all_rows = c.fetchall()
 
 conn.close()
 
-survey_name = all_rows[0][0]  # assign outputs to variable names
-topic = all_rows[0][1]
-expected_loi = all_rows[0][2]
-client_name = all_rows[0][3]
-sales_contact = all_rows[0][4]
-edge_credits = int(all_rows[0][5])
+survey_name = str(all_rows[0][0])  # assign outputs to variable names
+topic = str(all_rows[0][1])
+expected_loi = str(all_rows[0][2])
+client_name = str(all_rows[0][3])
+sales_contact = str(all_rows[0][4])
+edge_credits = str(int(all_rows[0][5]))
 
 
 # TODO: open web browser, navigate to Create Survey page within Survey Admin (SA)
@@ -191,7 +189,7 @@ def create_redirects_xls(q, s, c):
 
 
 def enter_data_sa():
-    driver.execute_script("document.getElementById('Name').value = '" + str(survey_name) + "';")
+    driver.find_element_by_id('Name').send_keys(survey_name)  # using send_keys instead of script command here due to potential inclusion of apostrophes etc which stuff up the js syntax
     driver.execute_script("document.getElementById('Status').value = '" + str(status) + "';")
     driver.execute_script("document.getElementById('Title').value = '" + str(topic) + "';")
     driver.execute_script("document.getElementById('ProjectIONumber').value = '" + str(p_number_to_search) + "';")
@@ -232,7 +230,6 @@ chrome_path = cfg.chrome_path  # location of chromedriver.exe on local drive
 driver = webdriver.Chrome(chrome_path)  # specify webdriver (selenium)
 new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name
 redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number_to_search + " redirects.xlsx"
-
 
 
 
