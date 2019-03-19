@@ -15,7 +15,8 @@ cfg = Config()  # create an instance of the Config class, essentially brings pri
 os.chdir(cfg.cwd)  # change the current working directory to the one stipulated in config file
 
 
-p_number_to_search = 'P-46258'
+p_number_to_search = 'P-46262'
+survey_name_to_search = 'Test project to delete'
 
 
 def generate_dates_sa():
@@ -30,10 +31,22 @@ def generate_dates_sa():
         next_month_string = "0" + next_month_string  # ...add a leading zero
     end_date_string = str(calendar.monthrange(year_next_month, next_month)[1]) + "/" + str(next_month_string) \
                       + "/" + str(year_next_month) + " 00:00:00"  # compile full end date string
-    return start_date_string, end_date_string
+    this_time_last_month = now + relativedelta(months=-1)  # date time object for today's date + time a month ago
+    last_month = this_time_last_month.month  # isolating just the number of last month
+    year_last_month = this_time_last_month.year  # isolating just the year it was last month
+    last_month_string = str(last_month)  # convert number of last month to a string
+    if len(last_month_string) == 1:  # if last month is only 1 digit...
+        last_month_string = "0" + last_month_string  # ...add a leading zero
+    proposal_date_string = "01/" + str(last_month_string) \
+                      + "/" + str(year_last_month)  # compile full prop date string
+    close_month_trimmed = close_month_raw[0:10]
+    close_month = datetime.datetime.strptime(close_month_trimmed, '%Y-%m-%d')
+    last_day_in_close_month = calendar.monthrange(close_month.year, close_month.month)[1]
+    closing_date_string = str(last_day_in_close_month) + '/' + str(close_month.month) + '/' + str(close_month.year)
+    return start_date_string, end_date_string, proposal_date_string, closing_date_string
 
 
-start_date, end_date = generate_dates_sa()  # generates start and end dates through the function
+start_date, end_date, proposal_date, closing_date = generate_dates_sa()  # generates start and end dates through the function
 
 # define all variables here
 qf_msg = cfg.qf_msg
@@ -43,7 +56,7 @@ comp_msg = cfg.comp_msg
 # varied for each project
 p_number_col = 'SE Project Number'
 
-# columns of interest for SQL query
+# Project Tracking Sheet - columns of interest for SQL query
 survey_name_col = 'Survey Name'
 status = 'Active'
 topic_col = 'Topic'
@@ -51,6 +64,7 @@ expected_loi_col = 'Expected LOI'
 client_name_col = 'Client name'
 sales_contact_col = 'Sales Contact'
 edge_credits_col = 'Edge Credits'
+close_month_col = 'Close month'
 
 # Fixed variables - same for all projects
 external_survey_url = 'tbc'
@@ -61,16 +75,20 @@ comp_outcome_reward_id = 'Completed Survey - Regular Prize Draw'
 comp_secondary_reward_type = 'Credits'
 tc_filepath = cfg.tc_filepath
 
-live_excel_name_path = cfg.live_excel_file_path + "\\" + cfg.live_excel_filename
-live_excel_file_name_path_ext = live_excel_name_path + ".xlsm"
+# live_excel_name_path = cfg.live_excel_file_path + "\\" + cfg.live_excel_filename  # DISABLED FOR TEST MODE
+# live_excel_file_name_path_ext = live_excel_name_path + ".xlsm"  # DISABLED FOR TEST MODE
+
+test_excel_name_path = cfg.test_excel_file_path + "\\" + cfg.test_excel_filename  # ENABLED FOR TEST MODE
+test_excel_file_name_path_ext = test_excel_name_path + ".xlsm"  # ENABLED FOR TEST MODE
 
 
 # TODO: import xlsm to sqlite
 
-conn = sqlite3.connect(cfg.live_excel_filename + ".db")
+# conn = sqlite3.connect(cfg.live_excel_filename + ".db")  # DISABLED FOR TEST MODE
+conn = sqlite3.connect(cfg.test_excel_filename + ".db")  # ENABLED FOR TEST MODE
 c = conn.cursor()
 
-df = pd.read_excel(live_excel_file_name_path_ext, sheet_name='PPT')  # create dataframe from xlsm content
+df = pd.read_excel(test_excel_file_name_path_ext, sheet_name='PPT')  # create dataframe from xlsm content
 df.to_sql('PPT', conn)  # populate database with dataframe content
 conn.commit()
 
@@ -78,49 +96,44 @@ table_name = "PPT"
 
 
 # TODO: add as a previous step - creating the job in Zoho
-##### This is where the code to pull data for Zoho project creation goes  #####################
-
+# This is where the code to pull data for Zoho project creation goes  #####################
 # Zoho generates the p-number so will need to use something else as the lookup variable/index - e.g. project name
-# If index = project name, how will I ensure the name is unique and the right project data is grabbed? Could use assertion that 'Close Month' is in last/this/next month
-# variables needed: proposal date, client name, proposal date sent, closing date aka (final day of) close month, stage, survey name, industry, account type, campaign start date, campaign end date
-close_month_db_example = "2019-03-01 00:00:00"  # type = 'text'
+# If index = project name, how will I ensure the name is unique and the right project data is grabbed? I'll just make sure I only give unique job names in future and will add warning if dupes found
 
 # Steps:
-# define all the variables
-# using project name (verifying close month), check database and grab relevant row data
-# open Chrome instance, go to Zoho new project URL, insert data
+# design the db query to obtain variables  - DONE
+# using project name (verifying close month), check database and grab relevant row data  - DONE
+# open Chrome instance, go to Zoho new project URL, insert data  - PENDING
 
 
-# TODO: define variables for Zoho
-proposal_date_sent = "23/02/2019"  # placeholder - calculate in function as first day of last month
-closing_date = "23/02/2019"  # placeholder - calculate in function as final day of month specified in 'Close Month' var
-account_name = ""
-
-
-
-
-
-
-
-
-
-
-
-# TODO: to prep data for Admin Survey Creation, using example P-number var, look up all variables of interest in the SQL database
-
+# TODO DONE: adjust SQL query so instead of searching with P-number to pull data, it searches on project name (DONE)
 # 1) Contents of columns of interest for row that matches P-number
-c.execute('SELECT "{coi1}","{coi2}","{coi3}","{coi4}","{coi5}","{coi6}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=p_number_col, coi1=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, scn=p_number_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
+c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col, scn=survey_name_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
 all_rows = c.fetchall()
-
+print(all_rows)
 conn.close()
 
-survey_name = str(all_rows[0][0])  # assign outputs to variable names
-topic = str(all_rows[0][1])
-expected_loi = str(all_rows[0][2])
-client_name = str(all_rows[0][3])
-sales_contact = str(all_rows[0][4])
-edge_credits = str(int(all_rows[0][5]))
+# New SQL variable names to be used in Zoho and then Survey Admin
+survey_name = survey_name_to_search  # assign outputs to variable names
+topic = str(all_rows[0][0])
+expected_loi = str(all_rows[0][1])
+client_name = str(all_rows[0][2])
+sales_contact = str(all_rows[0][3])
+edge_credits = str(int(all_rows[0][4]))
+close_month_raw = all_rows[0][5]
 
+
+# TODO DONE: define fixed variables for Zoho
+zoho_url = cfg.zoho_create_potential_URL
+industry = "Other"
+account_type = "Research Panel"
+stage = "Closed Won - Signed IO Received"
+campaign_start_date = start_date  # same as start date in survey admin, which is today's date
+campaign_end_date = closing_date  # same as closing date
+
+
+# TODO: launch Zoho in Chrome and input data
+# this is where I'm up to
 
 # TODO: open web browser, navigate to Create Survey page within Survey Admin (SA)
 
@@ -222,27 +235,24 @@ def enter_data_sa():
 
 def clean_up():
     send2trash.send2trash(cfg.live_excel_filename + ".db")
+    send2trash.send2trash(cfg.test_excel_filename + ".db")
 
-
-
+"""
 # Variable Definition
 chrome_path = cfg.chrome_path  # location of chromedriver.exe on local drive
 driver = webdriver.Chrome(chrome_path)  # specify webdriver (selenium)
 new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name
 redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number_to_search + " redirects.xlsx"
+"""
 
+# PULLING LEVERS HERE #############
+# login_sa()  # DISABLED FOR TESTING
+# establish_project_dir()  # DISABLED FOR TESTING
+# enter_data_sa()  # DISABLED FOR TESTING
 
-
-########## PULLING LEVERS HERE #############
-login_sa()  # disabled for testing other section
-establish_project_dir()  # disabled for testing other section
-enter_data_sa()  # disabled for testing other section
-
-subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer
-subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows
+# subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer  # DISABLED FOR TESTING
+# subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLED FOR TESTING
 
 clean_up()
 
 # TODO: (later) add project number to project tracking sheet - is this doable or will I need to open the sheet automatically and add P-number manually?
-
-
