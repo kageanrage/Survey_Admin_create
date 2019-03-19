@@ -1,5 +1,6 @@
 import os, time, pprint, logging, sqlite3, subprocess, pyautogui, shutil, send2trash, datetime, calendar
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from config import Config   # this imports the config file where the private data sits
 import pandas as pd
@@ -15,7 +16,7 @@ cfg = Config()  # create an instance of the Config class, essentially brings pri
 os.chdir(cfg.cwd)  # change the current working directory to the one stipulated in config file
 
 
-p_number_to_search = 'P-46262'
+# p_number_to_search = 'P-46262' # won't be needed once Zoho is in the chain
 survey_name_to_search = 'Test project to delete'
 
 
@@ -39,14 +40,19 @@ def generate_dates_sa():
         last_month_string = "0" + last_month_string  # ...add a leading zero
     proposal_date_string = "01/" + str(last_month_string) \
                       + "/" + str(year_last_month)  # compile full prop date string
+    return start_date_string, end_date_string, proposal_date_string
+
+
+def generate_closing_date():
     close_month_trimmed = close_month_raw[0:10]
     close_month = datetime.datetime.strptime(close_month_trimmed, '%Y-%m-%d')
     last_day_in_close_month = calendar.monthrange(close_month.year, close_month.month)[1]
     closing_date_string = str(last_day_in_close_month) + '/' + str(close_month.month) + '/' + str(close_month.year)
-    return start_date_string, end_date_string, proposal_date_string, closing_date_string
+    return closing_date_string
 
 
-start_date, end_date, proposal_date, closing_date = generate_dates_sa()  # generates start and end dates through the function
+start_date, end_date, proposal_date = generate_dates_sa()  # generates start and end dates through the function
+
 
 # define all variables here
 qf_msg = cfg.qf_msg
@@ -113,6 +119,7 @@ all_rows = c.fetchall()
 print(all_rows)
 conn.close()
 
+
 # New SQL variable names to be used in Zoho and then Survey Admin
 survey_name = survey_name_to_search  # assign outputs to variable names
 topic = str(all_rows[0][0])
@@ -128,7 +135,8 @@ zoho_url = cfg.zoho_create_potential_URL
 industry = "Other"
 account_type = "Research Panel"
 stage = "Closed Won - Signed IO Received"
-campaign_start_date = start_date  # same as start date in survey admin, which is today's date
+campaign_start_date = start_date[0:10]  # same as start date in survey admin, which is today's date, but trimmed
+closing_date = generate_closing_date()
 campaign_end_date = closing_date  # same as closing date
 
 
@@ -139,13 +147,45 @@ campaign_end_date = closing_date  # same as closing date
 
 
 def login_sa():
-    driver.get(cfg.assign_URL)  # use selenium webdriver to open web browser and desired URL from config file
+    driver.get(cfg.create_survey_URL)  # use selenium webdriver to open web browser and desired URL from config file
     driver.execute_script("document.getElementById('UserName').value = '" + str(cfg.uname) + "';")  # insert username
     driver.execute_script("document.getElementById('Password').value = '" + str(cfg.pwd) + "';")  # insert password
     pass_elem = driver.find_element_by_id('Password')  # find the 'Password' text box using its element ID
     pass_elem.submit()  # submit password
     time.sleep(2)   # wait 2 seconds for the login process to take place (tested and this is necessary)
 
+
+def login_zoho():
+    driver.get(cfg.zoho_login_url)  # use selenium webdriver to open web browser and desired URL from config file
+    driver.execute_script("document.getElementById('lid').value = '" + str(cfg.zoho_uname) + "';")  # insert username
+    driver.execute_script("document.getElementById('pwd').value = '" + str(cfg.zoho_pw) + "';")  # insert password
+    pass_elem = driver.find_element_by_id('pwd')  # find the 'Password' text box using its element ID
+    pass_elem.submit()  # submit password
+    time.sleep(2)   # wait 2 seconds for the login process to take place (tested and this is necessary)
+    driver.get(cfg.zoho_create_potential_URL)
+
+
+def enter_data_zoho():
+    # driver.find_element_by_id('Name').send_keys(survey_name)  # using send_keys instead of script command here due to potential inclusion of apostrophes etc which stuff up the js syntax
+    driver.execute_script("document.getElementById('Crm_Potentials_ACCOUNTID').value = '" + str(client_name) + "';")
+    driver.execute_script("document.getElementById('Crm_Potentials_CONTACTID').value = '" + str(sales_contact) + "';")
+    driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALNAME').value = '" + str(survey_name) + "';")
+    # THIS IS WHERE I'M UP TO - TRYING TO FIND ELEMENT AND SELECT FROM DROPDOWN
+    # driver.execute_script("document.getElementById('Crm_Potentials_ACCOUNTID').value = '" + str(industry) + "';") # can't see ID in source - come back to it
+    # driver.find_element_by_css_selector('#Potentials_fldRow_STAGE > div.labelValCreate.mL45 > div > span > span.selection > span').send_keys(industry) # this doesn't work either
+    driver.find_element_by_xpath("//a[@class='selection' and text()='Other']").click()
+    # driver.execute_script("document.getElementById('Crm_Potentials_ACCOUNTID').value = '" + str(account_type) + "';") # can't see ID in source - come back to it
+    driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALCF86').value = '" + str(proposal_date) + "';") # can't see ID in source - come back to it
+    driver.execute_script("document.getElementById('Crm_Potentials_CLOSINGDATE').value = '" + str(closing_date) + "';")
+    # driver.execute_script("document.getElementById('Crm_Potentials_ACCOUNTID').value = '" + str(stage) + "';") # can't see ID in source - come back to it
+    driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALCF84').value = '" + str(campaign_start_date) + "';")
+    driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALCF83').value = '" + str(campaign_end_date) + "';")
+    # driver.find_element_by_id('TermsAndConditionsPdf').click()
+    # time.sleep(2)
+    # pyautogui.typewrite(tc_filepath)  # since popup window is outside web browser, need a diff package to control
+    # pyautogui.press('enter')
+    # driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
+    # LAST ROW COMMENTED OUT TO AVOID ACTUAL PROJECT CREATION  ###########
 
 def grab_redirects():
     quota_full_url = driver.find_element_by_id('OutcomeFullUrl').get_attribute('value')  # find the right element and grab URL from box
@@ -237,13 +277,19 @@ def clean_up():
     send2trash.send2trash(cfg.live_excel_filename + ".db")
     send2trash.send2trash(cfg.test_excel_filename + ".db")
 
-"""
+
 # Variable Definition
+
 chrome_path = cfg.chrome_path  # location of chromedriver.exe on local drive
-driver = webdriver.Chrome(chrome_path)  # specify webdriver (selenium)
-new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name
-redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number_to_search + " redirects.xlsx"
-"""
+chrome_options = Options()
+chrome_options.add_argument("--disable-notifications")  # to disable notifications popup in Chrome (affects Zoho page)
+driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)  # specify webdriver (chrome via selenium)
+clean_up() # this should go at the end technically but putting it early on for testing mode in case errors interfere
+login_zoho()
+enter_data_zoho()
+# new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name
+# redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number_to_search + " redirects.xlsx"
+
 
 # PULLING LEVERS HERE #############
 # login_sa()  # DISABLED FOR TESTING
@@ -253,6 +299,6 @@ redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number_to_search + 
 # subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer  # DISABLED FOR TESTING
 # subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLED FOR TESTING
 
-clean_up()
+
 
 # TODO: (later) add project number to project tracking sheet - is this doable or will I need to open the sheet automatically and add P-number manually?
