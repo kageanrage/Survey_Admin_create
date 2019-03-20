@@ -10,6 +10,8 @@ import pandas as pd
 from dateutil.relativedelta import *
 import openpyxl
 from openpyxl.styles import Font, Border, Side
+import bs4
+import re
 
 
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')  # turns on logging
@@ -192,8 +194,7 @@ def enter_data_zoho():
     driver.find_element_by_id('savePotentialsBtn').click()  # save potential
     time.sleep(5)
 
-    # TODO: figure out how to put the Contact Name in and make it stick. Might need to be very manual 
-    # TODO: Use beautiful soup and regex to grab the p-number from the page
+    # TODO: figure out how to put the Contact Name in and make it stick. Might need to be very manual
 
     # p_num_location = driver.find_element_by_id("subvalue_POTENTIALCF6")
 
@@ -223,11 +224,20 @@ def enter_data_zoho():
     # LAST ROW COMMENTED OUT TO AVOID ACTUAL POTENTIAL CREATION  ###########
 
 
-
 def grab_p_number():
-    p_num_location = driver.find_element_by_id("subvalue_POTENTIALCF6")
-    p_num = p_num_location.get_attribute('value')
-    print(p_num)
+    test_html_file = open(cfg.test_html_file)
+    test_soup = bs4.BeautifulSoup(test_html_file, "html.parser")  # turns the HTML into a beautiful soup object
+    soup_string = str(test_soup)
+    # print(soup_string)
+    text_segment = r"P-\d\d\d\d\d"  # hopefully I've used those escape characters correctly
+    regex = re.compile(text_segment)
+    mo = regex.findall(soup_string)
+    print('mo looks like this: ')
+    print(mo[0])
+    # this function correctly finds the p-number on the page using regex.
+    # TODO: Now need to switch it to live HTML and test, then store P-number as variable and proceed to trying to add it to Project Tracking sheet
+
+
 
 def grab_redirects():
     quota_full_url = driver.find_element_by_id('OutcomeFullUrl').get_attribute('value')  # find the right element and grab URL from box
@@ -326,10 +336,10 @@ chrome_path = cfg.chrome_path  # location of chromedriver.exe on local drive
 chrome_options = Options()
 chrome_options.add_argument("--disable-notifications")  # to disable notifications popup in Chrome (affects Zoho page)
 driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)  # specify webdriver (chrome via selenium)
-clean_up() # this should go at the end technically but putting it early on for testing mode in case errors interfere
+clean_up()  # this should go at the end technically but putting it early on for testing mode in case errors interfere
 login_zoho()
 enter_data_zoho()
-# grab_p_number()
+grab_p_number()
 # new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name
 # redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number_to_search + " redirects.xlsx"
 
