@@ -2,6 +2,9 @@ import os, time, pprint, logging, sqlite3, subprocess, pyautogui, shutil, send2t
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
 from config import Config   # this imports the config file where the private data sits
 import pandas as pd
 from dateutil.relativedelta import *
@@ -166,26 +169,65 @@ def login_zoho():
 
 
 def enter_data_zoho():
-    # driver.find_element_by_id('Name').send_keys(survey_name)  # using send_keys instead of script command here due to potential inclusion of apostrophes etc which stuff up the js syntax
+    driver.find_element_by_id('Crm_Potentials_CONTACTID').send_keys(sales_contact)  # inconsistent with execute_script, same with send_keys. It enters, but can't make it save
+    time.sleep(1)
+    pyautogui.press('tab')
+    # driver.execute_script("document.getElementById('Crm_Potentials_CONTACTID').value = '" + str(sales_contact) + "';")  # sometimes this doesn't input so starting with it
+    driver.find_element_by_id('select2-Crm_Potentials_POTENTIALCF9-container').click()  # industry. Couldn't figure out how to make selenium do this so had to use pyautogui
+    pyautogui.typewrite(industry)
+    pyautogui.press('enter')
     driver.execute_script("document.getElementById('Crm_Potentials_ACCOUNTID').value = '" + str(client_name) + "';")
-    driver.execute_script("document.getElementById('Crm_Potentials_CONTACTID').value = '" + str(sales_contact) + "';")
     driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALNAME').value = '" + str(survey_name) + "';")
-    # THIS IS WHERE I'M UP TO - TRYING TO FIND ELEMENT AND SELECT FROM DROPDOWN
-    # driver.execute_script("document.getElementById('Crm_Potentials_ACCOUNTID').value = '" + str(industry) + "';") # can't see ID in source - come back to it
-    # driver.find_element_by_css_selector('#Potentials_fldRow_STAGE > div.labelValCreate.mL45 > div > span > span.selection > span').send_keys(industry) # this doesn't work either
-    driver.find_element_by_xpath("//a[@class='selection' and text()='Other']").click()
-    # driver.execute_script("document.getElementById('Crm_Potentials_ACCOUNTID').value = '" + str(account_type) + "';") # can't see ID in source - come back to it
-    driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALCF86').value = '" + str(proposal_date) + "';") # can't see ID in source - come back to it
+    driver.find_element_by_id('select2-Crm_Potentials_POTENTIALCF10-container').click()  # account_type. Couldn't figure out how to make selenium do this so had to use pyautogui
+    pyautogui.typewrite(account_type)
+    pyautogui.press('enter')
+    driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALCF86').value = '" + str(proposal_date) + "';")
     driver.execute_script("document.getElementById('Crm_Potentials_CLOSINGDATE').value = '" + str(closing_date) + "';")
-    # driver.execute_script("document.getElementById('Crm_Potentials_ACCOUNTID').value = '" + str(stage) + "';") # can't see ID in source - come back to it
+    driver.find_element_by_id('select2-Crm_Potentials_STAGE-container').click()  # stage. Couldn't figure out how to make selenium do this so had to use pyautogui
+    pyautogui.typewrite(stage)
+    pyautogui.press('enter')
     driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALCF84').value = '" + str(campaign_start_date) + "';")
     driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALCF83').value = '" + str(campaign_end_date) + "';")
-    # driver.find_element_by_id('TermsAndConditionsPdf').click()
-    # time.sleep(2)
-    # pyautogui.typewrite(tc_filepath)  # since popup window is outside web browser, need a diff package to control
-    # pyautogui.press('enter')
-    # driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
-    # LAST ROW COMMENTED OUT TO AVOID ACTUAL PROJECT CREATION  ###########
+    time.sleep(5)
+    driver.find_element_by_id('savePotentialsBtn').click()  # save potential
+    time.sleep(5)
+
+    # TODO: figure out how to put the Contact Name in and make it stick. Might need to be very manual 
+    # TODO: Use beautiful soup and regex to grab the p-number from the page
+
+    # p_num_location = driver.find_element_by_id("subvalue_POTENTIALCF6")
+
+
+    # ID 'subvalue_CONTACTID' - this one seems to work but no value is then returned (p_num is None)
+    # print(f"p_num_location is {p_num_location}")
+
+    # This is a way to take an element and find all attributes for it - e.g. to try to track down the value. Will come in handy later.
+    # VARIABLE 1 - p_num_location
+    # attempt to get all attributes of element (method 1):
+    # attributes = driver.execute_script('var items = {}; for (index = 0; index < arguments[0].attributes.length; ++index) { items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value }; return items;', p_num_location)
+    # pprint.pprint(attributes)  # attempting to list all attributes for p_num_location to then see if it has a 'value'
+    # # attempt to get all attributes of element (method 2):
+    # p1_method2 = p_num_location.get_property('attributes')[0]
+    # pprint.pprint(p1_method2)
+
+
+
+
+    #
+    # p_num = p_num_location.get_attribute("value_Reference Number")
+    # print(f"p_num is {p_num}")
+    # driver.find_element_by_id('subvalue_CONTACTID').click()  # ID 'subvalue_CONTACTID' or 'value_CONTACTID' or 'labelTD_CONTACTID'
+    #
+    # pyautogui.typewrite(sales_contact)
+    # driver.find_element_by_name('button__CONTACTID').click()
+    # LAST ROW COMMENTED OUT TO AVOID ACTUAL POTENTIAL CREATION  ###########
+
+
+
+def grab_p_number():
+    p_num_location = driver.find_element_by_id("subvalue_POTENTIALCF6")
+    p_num = p_num_location.get_attribute('value')
+    print(p_num)
 
 def grab_redirects():
     quota_full_url = driver.find_element_by_id('OutcomeFullUrl').get_attribute('value')  # find the right element and grab URL from box
@@ -287,6 +329,7 @@ driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)  # specify
 clean_up() # this should go at the end technically but putting it early on for testing mode in case errors interfere
 login_zoho()
 enter_data_zoho()
+# grab_p_number()
 # new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name
 # redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number_to_search + " redirects.xlsx"
 
@@ -298,7 +341,6 @@ enter_data_zoho()
 
 # subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer  # DISABLED FOR TESTING
 # subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLED FOR TESTING
-
 
 
 # TODO: (later) add project number to project tracking sheet - is this doable or will I need to open the sheet automatically and add P-number manually?
