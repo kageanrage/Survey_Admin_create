@@ -1,4 +1,4 @@
-import os, time, pprint, logging, sqlite3, subprocess, pyautogui, shutil, send2trash, datetime, calendar
+import os, time, pprint, logging, sqlite3, subprocess, pyautogui, shutil, send2trash, datetime, calendar, sys
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
@@ -21,8 +21,12 @@ cfg = Config()  # create an instance of the Config class, essentially brings pri
 os.chdir(cfg.cwd)  # change the current working directory to the one stipulated in config file
 
 
-# p_number_to_search = 'P-46262' # won't be needed once Zoho is in the chain
-survey_name_to_search = 'Test project to delete'
+def pass_in_survey_name():    # reads in arg string from batch file
+    if len(sys.argv) > 1:
+        surv_name = str(sys.argv[1])  # takes the desired survey name from the command line arg, passed by the batch file
+    else:
+        surv_name = "No arguments passed"
+    return surv_name
 
 
 def generate_dates_sa():
@@ -56,6 +60,12 @@ def generate_closing_date():
     return closing_date_string
 
 
+# p_number = 'P-46262'  # this is hardcoded for testing - won't be needed once Zoho is in the chain
+# survey_name_to_search = 'Test KP'  # this is hardcoded for testing - won't be needed once argument passed in bat file
+
+survey_name_to_search = pass_in_survey_name()
+
+
 start_date, end_date, proposal_date = generate_dates_sa()  # generates start and end dates through the function
 
 
@@ -86,20 +96,21 @@ comp_outcome_reward_id = 'Completed Survey - Regular Prize Draw'
 comp_secondary_reward_type = 'Credits'
 tc_filepath = cfg.tc_filepath
 
-# live_excel_name_path = cfg.live_excel_file_path + "\\" + cfg.live_excel_filename  # DISABLED FOR TEST MODE
-# live_excel_file_name_path_ext = live_excel_name_path + ".xlsm"  # DISABLED FOR TEST MODE
+excel_name_path = cfg.live_excel_file_path + "\\" + cfg.live_excel_filename  # LIVE MODE VERSION
+excel_file_name_path_ext = excel_name_path + ".xlsm"  # LIVE MODE VERSION
+excel_filename = cfg.live_excel_filename  # LIVE MODE VERSION
 
-test_excel_name_path = cfg.test_excel_file_path + "\\" + cfg.test_excel_filename  # ENABLED FOR TEST MODE
-test_excel_file_name_path_ext = test_excel_name_path + ".xlsm"  # ENABLED FOR TEST MODE
-
+# excel_name_path = cfg.test_excel_file_path + "\\" + cfg.test_excel_filename  # TEST MODE VERSION
+# excel_file_name_path_ext = excel_name_path + ".xlsm"  # TEST MODE VERSION
+# excel_filename = cfg.test_excel_filename  # TEST MODE VERSION
 
 # TODO: import xlsm to sqlite
 
-# conn = sqlite3.connect(cfg.live_excel_filename + ".db")  # DISABLED FOR TEST MODE
-conn = sqlite3.connect(cfg.test_excel_filename + ".db")  # ENABLED FOR TEST MODE
+
+conn = sqlite3.connect(excel_filename + ".db")
 c = conn.cursor()
 
-df = pd.read_excel(test_excel_file_name_path_ext, sheet_name='PPT')  # create dataframe from xlsm content
+df = pd.read_excel(excel_file_name_path_ext, sheet_name='PPT')  # create dataframe from xlsm content
 df.to_sql('PPT', conn)  # populate database with dataframe content
 conn.commit()
 
@@ -114,13 +125,15 @@ table_name = "PPT"
 # Steps:
 # design the db query to obtain variables  - DONE
 # using project name (verifying close month), check database and grab relevant row data  - DONE
-# open Chrome instance, go to Zoho new project URL, insert data  - PENDING
+# open Chrome instance, go to Zoho new project URL, insert data  - DONE
 
 
 # TODO DONE: adjust SQL query so instead of searching with P-number to pull data, it searches on project name (DONE)
 # 1) Contents of columns of interest for row that matches P-number
 c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col, scn=survey_name_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
 all_rows = c.fetchall()
+print(f"Searched on project name '{survey_name_to_search}'")
+print('Project row looked up and found in excel db looks like this:')
 print(all_rows)
 conn.close()
 
@@ -146,7 +159,6 @@ campaign_end_date = closing_date  # same as closing date
 
 
 # TODO: launch Zoho in Chrome and input data
-# this is where I'm up to
 
 # TODO: open web browser, navigate to Create Survey page within Survey Admin (SA)
 
@@ -175,9 +187,13 @@ def enter_data_zoho():
     time.sleep(1)
     pyautogui.press('tab')
     # driver.execute_script("document.getElementById('Crm_Potentials_CONTACTID').value = '" + str(sales_contact) + "';")  # sometimes this doesn't input so starting with it
+    time.sleep(1)
     driver.find_element_by_id('select2-Crm_Potentials_POTENTIALCF9-container').click()  # industry. Couldn't figure out how to make selenium do this so had to use pyautogui
+    time.sleep(1)
     pyautogui.typewrite(industry)
+    time.sleep(1)
     pyautogui.press('enter')
+    time.sleep(1)
     driver.execute_script("document.getElementById('Crm_Potentials_ACCOUNTID').value = '" + str(client_name) + "';")
     driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALNAME').value = '" + str(survey_name) + "';")
     driver.find_element_by_id('select2-Crm_Potentials_POTENTIALCF10-container').click()  # account_type. Couldn't figure out how to make selenium do this so had to use pyautogui
@@ -212,8 +228,6 @@ def enter_data_zoho():
     # pprint.pprint(p1_method2)
 
 
-
-
     #
     # p_num = p_num_location.get_attribute("value_Reference Number")
     # print(f"p_num is {p_num}")
@@ -225,18 +239,20 @@ def enter_data_zoho():
 
 
 def grab_p_number():
-    test_html_file = open(cfg.test_html_file)
-    test_soup = bs4.BeautifulSoup(test_html_file, "html.parser")  # turns the HTML into a beautiful soup object
-    soup_string = str(test_soup)
+    # test_html_file = open(cfg.test_html_file)  # on for test mode
+    # soup = bs4.BeautifulSoup(test_html_file, "html.parser")  # on for test mode
+    content = driver.page_source  # on for live mode
+    soup = bs4.BeautifulSoup(content, "html.parser")  # on for live mode
+    soup_string = str(soup)
     # print(soup_string)
     text_segment = r"P-\d\d\d\d\d"  # hopefully I've used those escape characters correctly
     regex = re.compile(text_segment)
     mo = regex.findall(soup_string)
-    print('mo looks like this: ')
-    print(mo[0])
+    p_num = mo[0]
+    return p_num
+
     # this function correctly finds the p-number on the page using regex.
     # TODO: Now need to switch it to live HTML and test, then store P-number as variable and proceed to trying to add it to Project Tracking sheet
-
 
 
 def grab_redirects():
@@ -264,8 +280,8 @@ def create_redirects_xls(q, s, c):
     wb = openpyxl.Workbook()
 
     sheet1 = wb.active
-    sheet1.title = f'Redirects - {p_number_to_search}'
-    sheet1['A1'] = f'Redirects for {p_number_to_search} - {survey_name}'
+    sheet1.title = f'Redirects - {p_number}'
+    sheet1['A1'] = f'Redirects for {p_number} - {survey_name}'
     sheet1['B2'] = 'Quota Full:'
     sheet1['B3'] = 'Screened:'
     sheet1['B4'] = 'Complete:'
@@ -297,7 +313,7 @@ def enter_data_sa():
     driver.find_element_by_id('Name').send_keys(survey_name)  # using send_keys instead of script command here due to potential inclusion of apostrophes etc which stuff up the js syntax
     driver.execute_script("document.getElementById('Status').value = '" + str(status) + "';")
     driver.execute_script("document.getElementById('Title').value = '" + str(topic) + "';")
-    driver.execute_script("document.getElementById('ProjectIONumber').value = '" + str(p_number_to_search) + "';")
+    driver.execute_script("document.getElementById('ProjectIONumber').value = '" + str(p_number) + "';")
     driver.execute_script("document.getElementById('ExpectedLength').value = '" + str(expected_loi) + "';")
     driver.execute_script("document.getElementById('ClientCompanyName').value = '" + str(client_name) + "';")
     driver.execute_script("document.getElementById('ExternalSurveyUrl').value = '" + str(external_survey_url) + "';")
@@ -336,21 +352,23 @@ chrome_path = cfg.chrome_path  # location of chromedriver.exe on local drive
 chrome_options = Options()
 chrome_options.add_argument("--disable-notifications")  # to disable notifications popup in Chrome (affects Zoho page)
 driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)  # specify webdriver (chrome via selenium)
+
+# PULLING LEVERS HERE #############
 clean_up()  # this should go at the end technically but putting it early on for testing mode in case errors interfere
 login_zoho()
 enter_data_zoho()
-grab_p_number()
-# new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number_to_search + " - " + survey_name
-# redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number_to_search + " redirects.xlsx"
+p_number = grab_p_number()
+
+new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number + " - " + survey_name
+redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number + " redirects.xlsx"
 
 
-# PULLING LEVERS HERE #############
-# login_sa()  # DISABLED FOR TESTING
-# establish_project_dir()  # DISABLED FOR TESTING
-# enter_data_sa()  # DISABLED FOR TESTING
+login_sa()
+establish_project_dir()
+enter_data_sa()
 
-# subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer  # DISABLED FOR TESTING
-# subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLED FOR TESTING
+subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer  # DISABLED FOR TESTING
+subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLED FOR TESTING
 
 
 # TODO: (later) add project number to project tracking sheet - is this doable or will I need to open the sheet automatically and add P-number manually?
