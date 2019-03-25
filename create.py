@@ -13,6 +13,9 @@ from openpyxl.styles import Font, Border, Side
 import bs4
 import re
 
+# to avoid errors:
+# Client directory must exist
+# Survey name must be unique in xls
 
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')  # turns on logging
 # logging.disable(logging.CRITICAL)     # switches off logging when desired
@@ -63,7 +66,7 @@ def generate_closing_date():
 # p_number = 'P-46262'  # this is hardcoded for testing - won't be needed once Zoho is in the chain
 # survey_name_to_search = 'Test KP'  # this is hardcoded for testing - won't be needed once argument passed in bat file
 
-survey_name_to_search = pass_in_survey_name()
+survey_name_to_search = pass_in_survey_name()  # grabs survey name from batch file as argument
 
 
 start_date, end_date, proposal_date = generate_dates_sa()  # generates start and end dates through the function
@@ -104,8 +107,6 @@ excel_filename = cfg.live_excel_filename  # LIVE MODE VERSION
 # excel_file_name_path_ext = excel_name_path + ".xlsm"  # TEST MODE VERSION
 # excel_filename = cfg.test_excel_filename  # TEST MODE VERSION
 
-# TODO: import xlsm to sqlite
-
 
 conn = sqlite3.connect(excel_filename + ".db")
 c = conn.cursor()
@@ -117,19 +118,7 @@ conn.commit()
 table_name = "PPT"
 
 
-# TODO: add as a previous step - creating the job in Zoho
-# This is where the code to pull data for Zoho project creation goes  #####################
-# Zoho generates the p-number so will need to use something else as the lookup variable/index - e.g. project name
-# If index = project name, how will I ensure the name is unique and the right project data is grabbed? I'll just make sure I only give unique job names in future and will add warning if dupes found
-
-# Steps:
-# design the db query to obtain variables  - DONE
-# using project name (verifying close month), check database and grab relevant row data  - DONE
-# open Chrome instance, go to Zoho new project URL, insert data  - DONE
-
-
-# TODO DONE: adjust SQL query so instead of searching with P-number to pull data, it searches on project name (DONE)
-# 1) Contents of columns of interest for row that matches P-number
+# 1) Contents of columns of interest for row that matches survey name
 c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col, scn=survey_name_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
 all_rows = c.fetchall()
 print(f"Searched on project name '{survey_name_to_search}'")
@@ -148,7 +137,7 @@ edge_credits = str(int(all_rows[0][4]))
 close_month_raw = all_rows[0][5]
 
 
-# TODO DONE: define fixed variables for Zoho
+# define fixed variables for Zoho
 zoho_url = cfg.zoho_create_potential_URL
 industry = "Other"
 account_type = "Research Panel"
@@ -157,10 +146,6 @@ campaign_start_date = start_date[0:10]  # same as start date in survey admin, wh
 closing_date = generate_closing_date()
 campaign_end_date = closing_date  # same as closing date
 
-
-# TODO: launch Zoho in Chrome and input data
-
-# TODO: open web browser, navigate to Create Survey page within Survey Admin (SA)
 
 
 def login_sa():
@@ -214,7 +199,6 @@ def enter_data_zoho():
 
     # p_num_location = driver.find_element_by_id("subvalue_POTENTIALCF6")
 
-
     # ID 'subvalue_CONTACTID' - this one seems to work but no value is then returned (p_num is None)
     # print(f"p_num_location is {p_num_location}")
 
@@ -227,8 +211,6 @@ def enter_data_zoho():
     # p1_method2 = p_num_location.get_property('attributes')[0]
     # pprint.pprint(p1_method2)
 
-
-    #
     # p_num = p_num_location.get_attribute("value_Reference Number")
     # print(f"p_num is {p_num}")
     # driver.find_element_by_id('subvalue_CONTACTID').click()  # ID 'subvalue_CONTACTID' or 'value_CONTACTID' or 'labelTD_CONTACTID'
@@ -250,9 +232,6 @@ def grab_p_number():
     mo = regex.findall(soup_string)
     p_num = mo[0]
     return p_num
-
-    # this function correctly finds the p-number on the page using regex.
-    # TODO: Now need to switch it to live HTML and test, then store P-number as variable and proceed to trying to add it to Project Tracking sheet
 
 
 def grab_redirects():
@@ -337,8 +316,8 @@ def enter_data_sa():
     time.sleep(2)
     pyautogui.typewrite(tc_filepath)  # since popup window is outside web browser, need a diff package to control
     pyautogui.press('enter')
-    # driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
-    ###### LAST ROW COMMENTED OUT TO AVOID ACTUAL PROJECT CREATION  ###########
+    driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
+    # COMMENT OUT THE LAST ROW FOR TEST MODE, TO AVOID ACTUAL PROJECT CREATION  ###########
 
 
 def clean_up():
@@ -354,7 +333,7 @@ chrome_options.add_argument("--disable-notifications")  # to disable notificatio
 driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)  # specify webdriver (chrome via selenium)
 
 # PULLING LEVERS HERE #############
-clean_up()  # this should go at the end technically but putting it early on for testing mode in case errors interfere
+clean_up()
 login_zoho()
 enter_data_zoho()
 p_number = grab_p_number()
@@ -362,13 +341,13 @@ p_number = grab_p_number()
 new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number + " - " + survey_name
 redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number + " redirects.xlsx"
 
-
 login_sa()
 establish_project_dir()
 enter_data_sa()
 
-subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer  # DISABLED FOR TESTING
-subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLED FOR TESTING
+subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer  # DISABLE FOR TESTING
+subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLE FOR TESTING
+subprocess.Popen(f'explorer "{excel_file_name_path_ext}"')  # opens Survey Tracking file in windows, so I can add in project number manually  # DISABLE FOR TESTING
 
 
-# TODO: (later) add project number to project tracking sheet - is this doable or will I need to open the sheet automatically and add P-number manually?
+# TODO: update Zoho section so it uses API instead of GUI
