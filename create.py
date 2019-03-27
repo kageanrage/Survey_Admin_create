@@ -1,4 +1,4 @@
-import os, time, pprint, logging, sqlite3, subprocess, pyautogui, shutil, send2trash, datetime, calendar, sys
+import os, time, pprint, logging, sqlite3, subprocess, pyautogui, shutil, send2trash, datetime, calendar, sys, zcrmsdk
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
@@ -12,6 +12,8 @@ import openpyxl
 from openpyxl.styles import Font, Border, Side
 import bs4
 import re
+from zcrmsdk import *
+from pprint import pprint
 
 # to avoid errors:
 # Client directory must exist
@@ -61,6 +63,12 @@ def generate_closing_date():
     last_day_in_close_month = calendar.monthrange(close_month.year, close_month.month)[1]
     closing_date_string = str(last_day_in_close_month) + '/' + str(close_month.month) + '/' + str(close_month.year)
     return closing_date_string
+
+
+def date_reshuffler(original_date):
+    revised_date = original_date[6:10] + "-" + original_date[3:5] + "-" + original_date[0:2]
+    logging.debug(f"revised date is {revised_date}")
+    return revised_date
 
 
 # p_number = 'P-46262'  # this is hardcoded for testing - won't be needed once Zoho is in the chain
