@@ -25,6 +25,10 @@ logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - 
 cfg = Config()  # create an instance of the Config class, essentially brings private config data into play
 os.chdir(cfg.cwd)  # change the current working directory to the one stipulated in config file
 
+
+# FUNCTIONS ################################################
+
+
 def clean_up():
     send2trash.send2trash(cfg.live_excel_filename + ".db")
     send2trash.send2trash(cfg.test_excel_filename + ".db")
@@ -82,107 +86,6 @@ def date_reshuffler(original_date):
     revised_date = original_date[6:10] + "-" + original_date[3:5] + "-" + original_date[0:2]
     logging.debug(f"revised date is {revised_date}")
     return revised_date
-
-
-# p_number = 'P-46262'  # this is hardcoded for testing - won't be needed once Zoho is in the chain
-survey_name_to_search = 'KP test 28-03-19'  # TEST MODE - this is hardcoded for testing - won't be needed once argument passed in bat file
-
-# survey_name_to_search = pass_in_survey_name()  # LIVE MODE - grabs survey name from batch file as argument
-
-start_date, end_date, proposal_date = generate_dates_sa()  # generates start and end dates through the function
-
-# define variables here
-qf_msg = cfg.qf_msg
-so_msg = cfg.so_msg
-comp_msg = cfg.comp_msg
-
-# varied for each project
-p_number_col = 'SE Project Number'
-
-# Project Tracking Sheet - column names of interest for SQL query
-survey_name_col = 'Survey Name'
-status = 'Active'
-topic_col = 'Topic'
-expected_loi_col = 'Expected LOI'
-client_name_col = 'Client name'
-sales_contact_col = 'Sales Contact'
-edge_credits_col = 'Edge Credits'
-close_month_col = 'Close month'
-
-# Fixed variables - same for all projects
-external_survey_url = 'tbc'
-prize_draw_entries = '1'
-qf_outcome_reward_id = 'Disqualified Survey - Regular Prize Draw'
-so_outcome_reward_id = 'Disqualified Survey - Regular Prize Draw'
-comp_outcome_reward_id = 'Completed Survey - Regular Prize Draw'
-comp_secondary_reward_type = 'Credits'
-tc_filepath = cfg.tc_filepath  # file path of T&Cs pdf file
-
-excel_name_path = cfg.live_excel_file_path + "\\" + cfg.live_excel_filename  # LIVE MODE VERSION
-excel_file_name_path_ext = excel_name_path + ".xlsm"  # LIVE MODE VERSION
-excel_filename = cfg.live_excel_filename  # LIVE MODE VERSION
-
-# excel_name_path = cfg.test_excel_file_path + "\\" + cfg.test_excel_filename  # TEST MODE VERSION
-# excel_file_name_path_ext = excel_name_path + ".xlsm"  # TEST MODE VERSION
-# excel_filename = cfg.test_excel_filename  # TEST MODE VERSION
-
-
-conn = sqlite3.connect(excel_filename + ".db")
-c = conn.cursor()
-
-df = pd.read_excel(excel_file_name_path_ext, sheet_name='PPT')  # create dataframe from xlsm content
-df.to_sql('PPT', conn)  # populate database with dataframe content
-conn.commit()
-
-table_name = "PPT"
-
-
-# 1) Contents of columns of interest for row that matches survey name
-c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col, scn=survey_name_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
-all_rows = c.fetchall()
-print(f"Searched on project name '{survey_name_to_search}'")
-print('Project row looked up and found in excel db looks like this:')
-print(all_rows)
-conn.close()
-
-
-# New SQL variable names to be used in Zoho and then Survey Admin
-survey_name = survey_name_to_search  # assign outputs to variable names
-topic = str(all_rows[0][0])
-expected_loi = str(all_rows[0][1])
-client_name = str(all_rows[0][2])
-sales_contact = str(all_rows[0][3])
-edge_credits = str(int(all_rows[0][4]))
-close_date_raw = all_rows[0][5]
-
-
-# define fixed variables for Zoho
-zoho_url = cfg.zoho_create_potential_URL
-industry = "Other"
-account_type = "Research Panel"
-stage = "Closed Won - Signed IO Received"
-campaign_start_date = start_date[0:10]  # same as start date in survey admin, which is today's date, but trimmed
-closing_date = generate_closing_date()
-campaign_end_date = closing_date  # same as closing date
-
-# TODO: update Zoho section so it uses API instead of GUI
-
-# 0 run this code every single time:
-zcrmsdk.ZCRMRestClient.initialize()
-
-# 2 - second chunk of code (run in isolation) - I ran this to attempt to generate 'access token through refresh token' i.e. add it to the token file
-# oauth_client = zcrmsdk.ZohoOAuth.get_client_instance()
-# refresh_token = cfg.refresh_token
-# user_identifier = cfg.zoho_uname
-# oauth_tokens = oauth_client.generate_access_token_from_refresh_token(refresh_token, user_identifier)
-
-# create format-adjusted date variables for use by API
-proposal_date_api = date_reshuffler(proposal_date)
-closing_date_api = date_reshuffler(closing_date)
-campaign_start_date_api = date_reshuffler(campaign_start_date)
-campaign_end_date_api = date_reshuffler(campaign_end_date)
-
-# 3 - if access token already refreshed in past hour, can proceed without any initialisation code apart from what's specified at '# 0'
 
 
 def search_contact_by_name(keyword):
@@ -289,15 +192,6 @@ def get_potential_record_by_id(id):
         print(ex.error_content)
 
 
-# This is where the action is #####################################################################################
-clean_up()
-
-new_project_name = survey_name  # define what I want the name of the new potential to be
-new_job_id = create_potential()  # create the new potential and store its ID in this variable
-p_number = get_potential_record_by_id(new_job_id)  # use that ID to look up the newly created potential and store its P-number in this variable
-print(f"p-number for new project is {p_number}")
-
-
 def login_sa():
     driver.get(cfg.create_survey_URL)  # use selenium webdriver to open web browser and desired URL from config file
     driver.execute_script("document.getElementById('UserName').value = '" + str(cfg.uname) + "';")  # insert username
@@ -305,83 +199,6 @@ def login_sa():
     pass_elem = driver.find_element_by_id('Password')  # find the 'Password' text box using its element ID
     pass_elem.submit()  # submit password
     time.sleep(2)   # wait 2 seconds for the login process to take place (tested and this is necessary)
-
-
-def login_zoho():
-    driver.get(cfg.zoho_login_url)  # use selenium webdriver to open web browser and desired URL from config file
-    driver.execute_script("document.getElementById('lid').value = '" + str(cfg.zoho_uname) + "';")  # insert username
-    driver.execute_script("document.getElementById('pwd').value = '" + str(cfg.zoho_pw) + "';")  # insert password
-    pass_elem = driver.find_element_by_id('pwd')  # find the 'Password' text box using its element ID
-    pass_elem.submit()  # submit password
-    time.sleep(2)   # wait 2 seconds for the login process to take place (tested and this is necessary)
-    driver.get(cfg.zoho_create_potential_URL)
-
-
-def enter_data_zoho():
-    driver.find_element_by_id('Crm_Potentials_CONTACTID').send_keys(sales_contact)  # inconsistent with execute_script, same with send_keys. It enters, but can't make it save
-    time.sleep(1)
-    pyautogui.press('tab')
-    # driver.execute_script("document.getElementById('Crm_Potentials_CONTACTID').value = '" + str(sales_contact) + "';")  # sometimes this doesn't input so starting with it
-    time.sleep(1)
-    driver.find_element_by_id('select2-Crm_Potentials_POTENTIALCF9-container').click()  # industry. Couldn't figure out how to make selenium do this so had to use pyautogui
-    time.sleep(1)
-    pyautogui.typewrite(industry)
-    time.sleep(1)
-    pyautogui.press('enter')
-    time.sleep(1)
-    driver.execute_script("document.getElementById('Crm_Potentials_ACCOUNTID').value = '" + str(client_name) + "';")
-    driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALNAME').value = '" + str(survey_name) + "';")
-    driver.find_element_by_id('select2-Crm_Potentials_POTENTIALCF10-container').click()  # account_type. Couldn't figure out how to make selenium do this so had to use pyautogui
-    pyautogui.typewrite(account_type)
-    pyautogui.press('enter')
-    driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALCF86').value = '" + str(proposal_date) + "';")
-    driver.execute_script("document.getElementById('Crm_Potentials_CLOSINGDATE').value = '" + str(closing_date) + "';")
-    driver.find_element_by_id('select2-Crm_Potentials_STAGE-container').click()  # stage. Couldn't figure out how to make selenium do this so had to use pyautogui
-    pyautogui.typewrite(stage)
-    pyautogui.press('enter')
-    driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALCF84').value = '" + str(campaign_start_date) + "';")
-    driver.execute_script("document.getElementById('Crm_Potentials_POTENTIALCF83').value = '" + str(campaign_end_date) + "';")
-    time.sleep(5)
-    driver.find_element_by_id('savePotentialsBtn').click()  # save potential
-    time.sleep(5)
-
-    # TODO: figure out how to put the Contact Name in and make it stick. Might need to be very manual
-
-    # p_num_location = driver.find_element_by_id("subvalue_POTENTIALCF6")
-
-    # ID 'subvalue_CONTACTID' - this one seems to work but no value is then returned (p_num is None)
-    # print(f"p_num_location is {p_num_location}")
-
-    # This is a way to take an element and find all attributes for it - e.g. to try to track down the value. Will come in handy later.
-    # VARIABLE 1 - p_num_location
-    # attempt to get all attributes of element (method 1):
-    # attributes = driver.execute_script('var items = {}; for (index = 0; index < arguments[0].attributes.length; ++index) { items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value }; return items;', p_num_location)
-    # pprint.pprint(attributes)  # attempting to list all attributes for p_num_location to then see if it has a 'value'
-    # # attempt to get all attributes of element (method 2):
-    # p1_method2 = p_num_location.get_property('attributes')[0]
-    # pprint.pprint(p1_method2)
-
-    # p_num = p_num_location.get_attribute("value_Reference Number")
-    # print(f"p_num is {p_num}")
-    # driver.find_element_by_id('subvalue_CONTACTID').click()  # ID 'subvalue_CONTACTID' or 'value_CONTACTID' or 'labelTD_CONTACTID'
-    #
-    # pyautogui.typewrite(sales_contact)
-    # driver.find_element_by_name('button__CONTACTID').click()
-    # LAST ROW COMMENTED OUT TO AVOID ACTUAL POTENTIAL CREATION  ###########
-
-
-def grab_p_number():
-    # test_html_file = open(cfg.test_html_file)  # on for test mode
-    # soup = bs4.BeautifulSoup(test_html_file, "html.parser")  # on for test mode
-    content = driver.page_source  # on for live mode
-    soup = bs4.BeautifulSoup(content, "html.parser")  # on for live mode
-    soup_string = str(soup)
-    # print(soup_string)
-    text_segment = r"P-\d\d\d\d\d"  # hopefully I've used those escape characters correctly
-    regex = re.compile(text_segment)
-    mo = regex.findall(soup_string)
-    p_num = mo[0]
-    return p_num
 
 
 def grab_redirects():
@@ -470,26 +287,122 @@ def enter_data_sa():
     # COMMENT OUT THE LAST ROW FOR TEST MODE, TO AVOID ACTUAL PROJECT CREATION  ###########
 
 
+# TEST / LIVE MODE DETERMINING VARIABLES
+# p_number = 'P-46262'  # this is hardcoded for testing - won't be needed once Zoho is in the chain
+# survey_name_to_search = 'KP test 28-03-19'  # TEST MODE - this is hardcoded for testing - won't be needed once argument passed in bat file
+survey_name_to_search = pass_in_survey_name()  # LIVE MODE - grabs survey name from batch file as argument
+
+excel_name_path = cfg.live_excel_file_path + "\\" + cfg.live_excel_filename  # LIVE MODE VERSION
+excel_file_name_path_ext = excel_name_path + ".xlsm"  # LIVE MODE VERSION
+excel_filename = cfg.live_excel_filename  # LIVE MODE VERSION
+
+# excel_name_path = cfg.test_excel_file_path + "\\" + cfg.test_excel_filename  # TEST MODE VERSION
+# excel_file_name_path_ext = excel_name_path + ".xlsm"  # TEST MODE VERSION
+# excel_filename = cfg.test_excel_filename  # TEST MODE VERSION
 
 
+# DATABASE / PROJECT TRACKING SHEET OPERATIONS
+conn = sqlite3.connect(excel_filename + ".db")  # create database file
+c = conn.cursor()  # define cursor
+table_name = "PPT"  # define table name
+df = pd.read_excel(excel_file_name_path_ext, sheet_name='PPT')  # create dataframe from xlsm content
+df.to_sql('PPT', conn)  # populate database with dataframe content
+conn.commit()  # commit to db aka save file
 
-# Variable Definition
-# """  # TURNING OFF FOR TESTING ##
+
+# DB query
+c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col, scn=survey_name_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
+all_rows = c.fetchall()
+print(f"Searched on project name '{survey_name_to_search}'")
+print('Project row looked up and found in excel db looks like this:')
+print(all_rows)
+conn.close()
+
+
+# VARIABLES ################################################
+# DATABASE / PROJECT TRACKING SHEET
+# column names of interest for SQL query
+survey_name_col = 'Survey Name'
+status = 'Active'
+topic_col = 'Topic'
+expected_loi_col = 'Expected LOI'
+client_name_col = 'Client name'
+sales_contact_col = 'Sales Contact'
+edge_credits_col = 'Edge Credits'
+close_month_col = 'Close month'
+p_number_col = 'SE Project Number'
+
+# SQL variables for Zoho + Survey Admin
+survey_name = survey_name_to_search  # assign outputs to variable names
+new_project_name = survey_name  # redundant and can be adjusted when ready
+topic = str(all_rows[0][0])
+expected_loi = str(all_rows[0][1])
+client_name = str(all_rows[0][2])
+sales_contact = str(all_rows[0][3])
+edge_credits = str(int(all_rows[0][4]))
+close_date_raw = all_rows[0][5]
+
+# ZOHO variables
+# zoho_url = cfg.zoho_create_potential_URL
+industry = "Other"
+account_type = "Research Panel"
+stage = "Closed Won - Signed IO Received"
+
+# SURVEY ADMIN variables
+# Fixed variables - same for all projects
+qf_msg = cfg.qf_msg
+so_msg = cfg.so_msg
+comp_msg = cfg.comp_msg
+external_survey_url = 'tbc'
+prize_draw_entries = '1'
+qf_outcome_reward_id = 'Disqualified Survey - Regular Prize Draw'
+so_outcome_reward_id = 'Disqualified Survey - Regular Prize Draw'
+comp_outcome_reward_id = 'Completed Survey - Regular Prize Draw'
+comp_secondary_reward_type = 'Credits'
+tc_filepath = cfg.tc_filepath  # file path of T&Cs pdf file
+
+
+# DATE VARIABLES
+start_date, end_date, proposal_date = generate_dates_sa()  # generates start and end dates through the function
+campaign_start_date = start_date[0:10]  # same as start date in survey admin, which is today's date, but trimmed
+closing_date = generate_closing_date()
+campaign_end_date = closing_date  # same as closing date
+# format-adjusted date variables for use by API
+proposal_date_api = date_reshuffler(proposal_date)
+closing_date_api = date_reshuffler(closing_date)
+campaign_start_date_api = date_reshuffler(campaign_start_date)
+campaign_end_date_api = date_reshuffler(campaign_end_date)
+
+
+# ZOHO API OPERATIONS ##########################
+# 0 run this code every single time:
+zcrmsdk.ZCRMRestClient.initialize()
+
+# 2 - second chunk of code (run in isolation) - I ran this to attempt to generate 'access token through refresh token' i.e. add it to the token file
+oauth_client = zcrmsdk.ZohoOAuth.get_client_instance()
+refresh_token = cfg.refresh_token
+user_identifier = cfg.zoho_uname
+oauth_tokens = oauth_client.generate_access_token_from_refresh_token(refresh_token, user_identifier)
+
+# 3 - if access token already refreshed in past hour, can proceed without any initialisation code apart from what's specified at '# 0'
+
+clean_up()
+
+# Zoho levers
+new_job_id = create_potential()  # create the new potential and store its ID in this variable
+p_number = get_potential_record_by_id(new_job_id)  # use that ID to look up the newly created potential and store its P-number in this variable
+# print(f"p-number for new project is {p_number}")
+
+# Survey Admin variables
 chrome_path = cfg.chrome_path  # location of chromedriver.exe on local drive
 chrome_options = Options()
 chrome_options.add_argument("--disable-notifications")  # to disable notifications popup in Chrome (affects Zoho page)
-driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)  # specify webdriver (chrome via selenium)
-# """
-# PULLING LEVERS HERE #############
+driver = webdriver.Chrome(chrome_path, options=chrome_options)  # specify webdriver (chrome via selenium)
 
-# login_zoho()  # not needed in API mode
-# enter_data_zoho()  # not needed in API mode
-# p_number = grab_p_number()  # not needed in API mode
-
-# """  # TURNING OFF FOR TESTING ##
 new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number + " - " + survey_name
 redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number + " redirects.xlsx"
 
+# Survey Admin levers
 login_sa()
 establish_project_dir()
 enter_data_sa()
@@ -497,6 +410,3 @@ enter_data_sa()
 subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer  # DISABLE FOR TESTING
 subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLE FOR TESTING
 subprocess.Popen(f'explorer "{excel_file_name_path_ext}"')  # opens Survey Tracking file in windows, so I can add in project number manually  # DISABLE FOR TESTING
-
-# """
-
