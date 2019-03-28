@@ -25,6 +25,10 @@ logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - 
 cfg = Config()  # create an instance of the Config class, essentially brings private config data into play
 os.chdir(cfg.cwd)  # change the current working directory to the one stipulated in config file
 
+def clean_up():
+    send2trash.send2trash(cfg.live_excel_filename + ".db")
+    send2trash.send2trash(cfg.test_excel_filename + ".db")
+
 
 def pass_in_survey_name():    # reads in arg string from batch file
     if len(sys.argv) > 1:
@@ -167,10 +171,10 @@ campaign_end_date = closing_date  # same as closing date
 zcrmsdk.ZCRMRestClient.initialize()
 
 # 2 - second chunk of code (run in isolation) - I ran this to attempt to generate 'access token through refresh token' i.e. add it to the token file
-oauth_client = zcrmsdk.ZohoOAuth.get_client_instance()
-refresh_token = cfg.refresh_token
-user_identifier = cfg.zoho_uname
-oauth_tokens = oauth_client.generate_access_token_from_refresh_token(refresh_token, user_identifier)
+# oauth_client = zcrmsdk.ZohoOAuth.get_client_instance()
+# refresh_token = cfg.refresh_token
+# user_identifier = cfg.zoho_uname
+# oauth_tokens = oauth_client.generate_access_token_from_refresh_token(refresh_token, user_identifier)
 
 # create format-adjusted date variables for use by API
 proposal_date_api = date_reshuffler(proposal_date)
@@ -286,10 +290,12 @@ def get_potential_record_by_id(id):
 
 
 # This is where the action is #####################################################################################
-# new_project_name = survey_name  # define what I want the name of the new potential to be
-# new_job_id = create_potential()  # create the new potential and store its ID in this variable
-# p_number = get_potential_record_by_id(new_job_id)  # use that ID to look up the newly created potential and store its P-number in this variable
-# print(f"p-number for new project is {p_number}")
+clean_up()
+
+new_project_name = survey_name  # define what I want the name of the new potential to be
+new_job_id = create_potential()  # create the new potential and store its ID in this variable
+p_number = get_potential_record_by_id(new_job_id)  # use that ID to look up the newly created potential and store its P-number in this variable
+print(f"p-number for new project is {p_number}")
 
 
 def login_sa():
@@ -460,29 +466,27 @@ def enter_data_sa():
     time.sleep(2)
     pyautogui.typewrite(tc_filepath)  # since popup window is outside web browser, need a diff package to control
     pyautogui.press('enter')
-    driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
+    # driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
     # COMMENT OUT THE LAST ROW FOR TEST MODE, TO AVOID ACTUAL PROJECT CREATION  ###########
 
 
-def clean_up():
-    send2trash.send2trash(cfg.live_excel_filename + ".db")
-    send2trash.send2trash(cfg.test_excel_filename + ".db")
+
 
 
 # Variable Definition
-"""  # TURNING OFF FOR TESTING ##
+# """  # TURNING OFF FOR TESTING ##
 chrome_path = cfg.chrome_path  # location of chromedriver.exe on local drive
 chrome_options = Options()
 chrome_options.add_argument("--disable-notifications")  # to disable notifications popup in Chrome (affects Zoho page)
 driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)  # specify webdriver (chrome via selenium)
-"""
+# """
 # PULLING LEVERS HERE #############
-clean_up()
+
 # login_zoho()  # not needed in API mode
 # enter_data_zoho()  # not needed in API mode
 # p_number = grab_p_number()  # not needed in API mode
 
-"""  # TURNING OFF FOR TESTING ##
+# """  # TURNING OFF FOR TESTING ##
 new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number + " - " + survey_name
 redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number + " redirects.xlsx"
 
@@ -494,5 +498,5 @@ subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windo
 subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLE FOR TESTING
 subprocess.Popen(f'explorer "{excel_file_name_path_ext}"')  # opens Survey Tracking file in windows, so I can add in project number manually  # DISABLE FOR TESTING
 
-"""
+# """
 
