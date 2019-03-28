@@ -310,15 +310,6 @@ df.to_sql('PPT', conn)  # populate database with dataframe content
 conn.commit()  # commit to db aka save file
 
 
-# DB query
-c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col, scn=survey_name_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
-all_rows = c.fetchall()
-print(f"Searched on project name '{survey_name_to_search}'")
-print('Project row looked up and found in excel db looks like this:')
-print(all_rows)
-conn.close()
-
-
 # VARIABLES ################################################
 # DATABASE / PROJECT TRACKING SHEET
 # column names of interest for SQL query
@@ -331,6 +322,16 @@ sales_contact_col = 'Sales Contact'
 edge_credits_col = 'Edge Credits'
 close_month_col = 'Close month'
 p_number_col = 'SE Project Number'
+
+
+# DB query
+c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col, scn=survey_name_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
+all_rows = c.fetchall()
+print(f"Searched on project name '{survey_name_to_search}'")
+print('Project row looked up and found in excel db looks like this:')
+print(all_rows)
+conn.close()
+
 
 # SQL variables for Zoho + Survey Admin
 survey_name = survey_name_to_search  # assign outputs to variable names
