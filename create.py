@@ -283,7 +283,7 @@ def enter_data_sa():
     time.sleep(2)
     pyautogui.typewrite(tc_filepath)  # since popup window is outside web browser, need a diff package to control
     pyautogui.press('enter')
-    # driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
+    driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
     # COMMENT OUT THE LAST ROW FOR TEST MODE, TO AVOID ACTUAL PROJECT CREATION  ###########
 
 
