@@ -30,6 +30,7 @@ os.chdir(cfg.cwd)  # change the current working directory to the one stipulated 
 
 
 def clean_up():
+    os.chdir(cfg.repo_dir)
     send2trash.send2trash(cfg.live_excel_filename + ".db")
     send2trash.send2trash(cfg.test_excel_filename + ".db")
 
@@ -283,7 +284,7 @@ def enter_data_sa():
     time.sleep(2)
     pyautogui.typewrite(tc_filepath)  # since popup window is outside web browser, need a diff package to control
     pyautogui.press('enter')
-    # driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
+    driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
     # COMMENT OUT THE LAST ROW FOR TEST MODE, TO AVOID ACTUAL PROJECT CREATION  ###########
 
 
@@ -387,7 +388,7 @@ oauth_tokens = oauth_client.generate_access_token_from_refresh_token(refresh_tok
 
 # 3 - if access token already refreshed in past hour, can proceed without any initialisation code apart from what's specified at '# 0'
 
-clean_up()
+
 
 # Zoho levers
 new_job_id = create_potential()  # create the new potential and store its ID in this variable
@@ -411,3 +412,5 @@ enter_data_sa()
 subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer  # DISABLE FOR TESTING
 subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLE FOR TESTING
 subprocess.Popen(f'explorer "{excel_file_name_path_ext}"')  # opens Survey Tracking file in windows, so I can add in project number manually  # DISABLE FOR TESTING
+
+clean_up()
