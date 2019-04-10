@@ -1,4 +1,4 @@
-import os, time, pprint, logging, sqlite3, subprocess, pyautogui, shutil, send2trash, datetime, calendar, sys, zcrmsdk
+import os, time, pprint, logging, sqlite3, subprocess, pyautogui, shutil, send2trash, datetime, calendar, sys, zcrmsdk, pyperclip
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
@@ -414,3 +414,4 @@ subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in wi
 subprocess.Popen(f'explorer "{excel_file_name_path_ext}"')  # opens Survey Tracking file in windows, so I can add in project number manually  # DISABLE FOR TESTING
 
 clean_up()
+pyperclip.copy(p_number)  # copy p_number to clipboard to then manually paste once script is done
