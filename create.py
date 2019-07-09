@@ -339,7 +339,7 @@ conn.close()
 survey_name = survey_name_to_search  # assign outputs to variable names
 new_project_name = survey_name  # redundant and can be adjusted when ready
 topic = str(all_rows[0][0])
-expected_loi = str(all_rows[0][1])
+expected_loi = str(int(all_rows[0][1]))
 client_name = str(all_rows[0][2])
 sales_contact = str(all_rows[0][3])
 edge_credits = str(int(all_rows[0][4]))
