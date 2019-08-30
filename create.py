@@ -295,7 +295,7 @@ def enter_data_sa():
 survey_name_to_search = pass_in_survey_name()  # LIVE MODE - grabs survey name from batch file as argument
 
 excel_name_path = cfg.live_excel_file_path + "\\" + cfg.live_excel_filename  # LIVE MODE VERSION
-excel_file_name_path_ext = excel_name_path + ".xlsm"  # LIVE MODE VERSION
+excel_file_name_path_ext = excel_name_path + ".xls"  # LIVE MODE VERSION
 excel_filename = cfg.live_excel_filename  # LIVE MODE VERSION
 
 # excel_name_path = cfg.test_excel_file_path + "\\" + cfg.test_excel_filename  # TEST MODE VERSION
