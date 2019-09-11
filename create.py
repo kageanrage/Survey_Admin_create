@@ -39,7 +39,7 @@ def pass_in_survey_name():    # reads in arg string from batch file
     if len(sys.argv) > 1:
         surv_name = str(sys.argv[1])  # takes the desired survey name from the command line arg, passed by the batch file
     else:
-        surv_name = "No arguments passed"
+        surv_name = "last_row_in_table"
     return surv_name
 
 
@@ -327,7 +327,10 @@ p_number_col = 'SE Project Number'
 
 
 # DB query
-c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col, scn=survey_name_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
+if survey_name_to_search == "last_row_in_table":
+    c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}" FROM {tn} ORDER BY "index" DESC LIMIT 1'.format(tn=table_name, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col))  # note I need to put speech marks around "{cn}" because the column name contains a space
+else:
+    c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col, scn=survey_name_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
 all_rows = c.fetchall()
 print(f"Searched on project name '{survey_name_to_search}'")
 print('Project row looked up and found in excel db looks like this:')
@@ -416,3 +419,6 @@ subprocess.Popen(f'explorer "{excel_file_name_path_ext}"')  # opens Survey Track
 
 clean_up()
 pyperclip.copy(p_number)  # copy p_number to clipboard to then manually paste once script is done
+# TODO: add the P-number back into the Project Tracking sheet automatically before opening it.
+# use this as reference - https://stackoverflow.com/questions/48621625/how-to-append-some-data-into-existing-xlsx-sheet
+
