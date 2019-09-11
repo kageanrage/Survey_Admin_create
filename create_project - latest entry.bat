@@ -1,0 +1,1 @@
+cmd /k python "C:\Github local repos\Survey_Admin_create\create.py"
