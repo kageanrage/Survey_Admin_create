@@ -17,6 +17,7 @@ dummy files/
 *.txt
 *.db
 *.sqlite
+*.bat
 
 # User-specific stuff:
 .idea/**/workspace.xml

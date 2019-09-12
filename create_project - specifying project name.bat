@@ -1,1 +1,1 @@
-cmd /k python "C:\Github local repos\Survey_Admin_create\create.py" "Prosp UG adhoc"
+cmd /k python "C:\Github local repos\Survey_Admin_create\create.py" "Insert survey name here"
