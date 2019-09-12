@@ -1,22 +1,17 @@
 import os, time, pprint, logging, sqlite3, subprocess, pyautogui, shutil, send2trash, datetime, calendar, sys, zcrmsdk, pyperclip
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
 from config import Config   # this imports the config file where the private data sits
 import pandas as pd
 from dateutil.relativedelta import *
 import openpyxl
 from openpyxl.styles import Font, Border, Side
-import bs4
-import re
 from zcrmsdk import *
 from pprint import pprint
 
 # to avoid errors:
 # Survey name must be unique in xls
+# For 'use last row in database', Sales Contact for that last one must be populated, and that column must be empty in excel from that last one onwards
 
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')  # turns on logging
 # logging.disable(logging.CRITICAL)     # switches off logging when desired
@@ -337,6 +332,10 @@ p_number_col = 'SE Project Number'
 
 
 # DB query
+
+c.execute('DELETE FROM {tn} WHERE "Sales Contact" IS NULL'.format(tn=table_name))  # deletes db rows below last valid project row so that last row can be accurately located
+# conn.commit()  # commit to db aka save db file. Not needed at this particular point for functionality, and the db file gets deleted anyway
+
 if survey_name_to_search == "last_row_in_table":
     c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}" FROM {tn} ORDER BY "index" DESC LIMIT 1'.format(tn=table_name, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col))  # note I need to put speech marks around "{cn}" because the column name contains a space
 else:
