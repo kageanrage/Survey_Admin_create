@@ -16,7 +16,6 @@ from zcrmsdk import *
 from pprint import pprint
 
 # to avoid errors:
-# Client directory must exist
 # Survey name must be unique in xls
 
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')  # turns on logging
@@ -82,6 +81,16 @@ def generate_closing_date():
     return closing_date_string
 
 
+def establish_client_dir_if_needed():
+    client_dir_path = cfg.projects_dir_path + "\\" + client_name
+    logging.debug(f"client_dir_path = {client_dir_path}")
+    if not os.path.exists(client_dir_path):
+        os.mkdir(client_dir_path)  # creates new directory
+        logging.debug("client_dir_path not found, so client dir has been created")
+    else:
+        logging.debug("client_dir_path found, no need to create")
+
+
 def date_reshuffler(original_date):
     logging.debug(f"original date is {original_date}")
     revised_date = original_date[6:10] + "-" + original_date[3:5] + "-" + original_date[0:2]
@@ -102,6 +111,7 @@ def search_contact_by_name(keyword):
         # print('record_ins_array looks like this:')
         # print(record_ins_arr)
         logging.debug(f'Number of contacts found with this name (i.e. len of record_ins_arr) is {len(record_ins_arr)}')
+        assert len(record_ins_arr) == 1, 'Number of contacts found was not equal to 1'
         first_record = record_ins_arr[0]
         contact_id = first_record.entity_id
 
@@ -217,7 +227,7 @@ def establish_project_dir():
     # print(f'Quota Full: {qf}')
     # print(f'Screened: {so}')
     # print(f'Complete: {comp}')
-    logging.debug("Creating new directory:", new_project_dir_path)
+    print("Creating new directory:", new_project_dir_path)
     if not os.path.exists(new_project_dir_path):
         os.mkdir(new_project_dir_path)  # creates new directory
     create_redirects_xls(qf, so, comp)
@@ -408,8 +418,9 @@ driver = webdriver.Chrome(chrome_path, options=chrome_options)  # specify webdri
 new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number + " - " + survey_name
 redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number + " redirects.xlsx"
 
-# Survey Admin levers
+# Survey Admin + Windows levers
 login_sa()
+establish_client_dir_if_needed()
 establish_project_dir()
 enter_data_sa()
 
@@ -419,6 +430,3 @@ subprocess.Popen(f'explorer "{excel_file_name_path_ext}"')  # opens Survey Track
 
 clean_up()
 pyperclip.copy(p_number)  # copy p_number to clipboard to then manually paste once script is done
-# TODO: add the P-number back into the Project Tracking sheet automatically before opening it.
-# use this as reference - https://stackoverflow.com/questions/48621625/how-to-append-some-data-into-existing-xlsx-sheet
-
