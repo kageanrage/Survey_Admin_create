@@ -1,4 +1,4 @@
-import os, time, pprint, logging, sqlite3, subprocess, pyautogui, shutil, send2trash, datetime, calendar, sys, zcrmsdk, pyperclip
+import os, time, pprint, logging, sqlite3, subprocess, pyautogui, send2trash, datetime, calendar, sys, zcrmsdk, pyperclip
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from config import Config   # this imports the config file where the private data sits
@@ -337,7 +337,7 @@ c.execute('DELETE FROM {tn} WHERE "Sales Contact" IS NULL'.format(tn=table_name)
 # conn.commit()  # commit to db aka save db file. Not needed at this particular point for functionality, and the db file gets deleted anyway
 
 if survey_name_to_search == "last_row_in_table":
-    c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}" FROM {tn} ORDER BY "index" DESC LIMIT 1'.format(tn=table_name, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col))  # note I need to put speech marks around "{cn}" because the column name contains a space
+    c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}","{coi8}" FROM {tn} ORDER BY "index" DESC LIMIT 1'.format(tn=table_name, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col, coi8=survey_name_col))  # note I need to put speech marks around "{cn}" because the column name contains a space
 else:
     c.execute('SELECT "{coi2}","{coi3}","{coi4}","{coi5}","{coi6}","{coi7}" FROM {tn} WHERE "{cn}"="{scn}"'.format(tn=table_name, cn=survey_name_col, coi2=topic_col, coi3=expected_loi_col, coi4=client_name_col, coi5=sales_contact_col, coi6=edge_credits_col, coi7=close_month_col, scn=survey_name_to_search))  # note I need to put speech marks around "{cn}" because the column name contains a space
 all_rows = c.fetchall()
@@ -349,13 +349,18 @@ conn.close()
 
 # SQL variables for Zoho + Survey Admin
 survey_name = survey_name_to_search  # assign outputs to variable names
-new_project_name = survey_name  # redundant and can be adjusted when ready
 topic = str(all_rows[0][0])
 expected_loi = str(int(all_rows[0][1]))
 client_name = str(all_rows[0][2])
 sales_contact = str(all_rows[0][3])
 edge_credits = str(int(all_rows[0][4]))
 close_date_raw = all_rows[0][5]
+try:
+    survey_name = all_rows[0][6]  # if using 'grab last row' launch method, then we need to scan in survey_name. This will fail if using 'search by name' method
+except:
+    print('Queried for survey_name and nothing found so must be using Search By Survey Name method')
+
+new_project_name = survey_name  # redundant and can be adjusted when ready
 
 # ZOHO variables
 # zoho_url = cfg.zoho_create_potential_URL
