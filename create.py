@@ -199,21 +199,26 @@ def get_potential_record_by_id(id):
 
 
 def login_sa():
+    logging.debug('running login_sa function')
     driver.get(cfg.create_survey_URL)  # use selenium webdriver to open web browser and desired URL from config file
     driver.execute_script("document.getElementById('UserName').value = '" + str(cfg.uname) + "';")  # insert username
     driver.execute_script("document.getElementById('Password').value = '" + str(cfg.pwd) + "';")  # insert password
     pass_elem = driver.find_element_by_id('Password')  # find the 'Password' text box using its element ID
     pass_elem.submit()  # submit password
+    logging.debug('waiting 10 sec to ensure page has loaded')
     time.sleep(2)   # wait 2 seconds for the login process to take place (tested and this is necessary)
 
 
 def grab_redirects():
+    logging.debug('running grab_redirects function')
     quota_full_url = driver.find_element_by_id('OutcomeFullUrl').get_attribute('value')  # find the right element and grab URL from box
     screened_url = driver.find_element_by_id('OutcomeScreenedUrl').get_attribute('value')  # find the right element and grab URL from box
     complete_url = driver.find_element_by_id('OutcomeCompleteUrl').get_attribute('value')  # find the right element and grab URL from box
     quota_full_url = quota_full_url[0:83]  # trim off the last 3 characters
     screened_url = screened_url[0:83]  # trim off the last 3 characters
     complete_url = complete_url[0:83]  # trim off the last 3 characters
+    # logging.debug('waiting another 3 seconds')
+    # time.sleep(3)
     return quota_full_url, screened_url, complete_url
 
 
@@ -222,8 +227,11 @@ def establish_project_dir():
     # print(f'Quota Full: {qf}')
     # print(f'Screened: {so}')
     # print(f'Complete: {comp}')
-    print("Creating new directory:", new_project_dir_path)
+    logging.debug('checking if this new project dir path exists:')
+    logging.debug(new_project_dir_path)
     if not os.path.exists(new_project_dir_path):
+        logging.debug('apparently it does not exist, so now trying to create it')
+        print("Creating new directory:", new_project_dir_path)
         os.mkdir(new_project_dir_path)  # creates new directory
     create_redirects_xls(qf, so, comp)
 
@@ -419,7 +427,10 @@ chrome_options = Options()
 chrome_options.add_argument("--disable-notifications")  # to disable notifications popup in Chrome (affects Zoho page)
 driver = webdriver.Chrome(chrome_path, options=chrome_options)  # specify webdriver (chrome via selenium)
 
+
 new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number + " - " + survey_name
+logging.debug('new_project_dir_path has now been created and it looks like this:')
+logging.debug(new_project_dir_path)
 redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number + " redirects.xlsx"
 
 # Survey Admin + Windows levers
