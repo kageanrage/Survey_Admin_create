@@ -180,6 +180,9 @@ def get_potential_record_by_id(id):
         # print('######### Attempting to display Full_Name - if this works I can return this value')
         deal_name = resp.data.get_field_value('Deal_Name')
         p_number = resp.data.get_field_value('Reference_Number')
+        account_name_in_potential = resp.data.get_field_value('Account_Name')['name']
+        logging.debug(f'account_name = {account_name_in_potential}')
+        assert account_name_in_potential == client_name, "client names vary between potential and spreadsheet. Check for spaces etc?"
         # print(full_name)
         print('Data for the potential looks like this:')
         pprint(resp.data.field_data)
