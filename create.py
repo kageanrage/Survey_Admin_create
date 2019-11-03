@@ -1,6 +1,7 @@
 import os, time, pprint, logging, sqlite3, subprocess, pyautogui, send2trash, datetime, calendar, sys, zcrmsdk, pyperclip
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.action_chains import ActionChains
 from config import Config   # this imports the config file where the private data sits
 import pandas as pd
 from dateutil.relativedelta import *
@@ -295,13 +296,17 @@ def enter_data_sa():
     driver.execute_script("document.getElementById('OutcomeCompleteSecondaryRewardValue').value = '" + str(prize_draw_entries) + "';")
     driver.find_element_by_id('OutcomeCompleteSecondaryRewardType').send_keys('Reward')
     driver.find_element_by_id('OutcomeCompleteRewardType').send_keys(the_word_credits)  # added 23-06-19
-    driver.find_element_by_id('TermsAndConditionsPdf').click()
+    # driver.find_element_by_id('TermsAndConditionsPdf').click()  # moved away from .click to ActionChains due to Chrome v78 bug
+    tc_button = driver.find_element_by_id('TermsAndConditionsPdf')
+    ActionChains(driver).click(tc_button).perform()
     time.sleep(2)
     pyautogui.typewrite(tc_filepath)  # since popup window is outside web browser, need a diff package to control
     time.sleep(2)
     pyautogui.press('enter')
     time.sleep(2)
-    driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project
+    submit_button = driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button')
+    ActionChains(driver).click(submit_button).perform()
+    # driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project; moved away from .click to ActionChains due to Chrome v78 bug
     # COMMENT OUT THE LAST ROW FOR TEST MODE, TO AVOID ACTUAL PROJECT CREATION  ###########
 
 
