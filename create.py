@@ -412,7 +412,7 @@ campaign_end_date_api = date_reshuffler(campaign_end_date)
 
 # ZOHO API OPERATIONS ##########################
 # 0 run this code every single time:
-zcrmsdk.ZCRMRestClient.initialize()
+zcrmsdk.ZCRMRestClient.initialize(cfg.config_dict)
 
 # 2 - second chunk of code (run in isolation) - I ran this to attempt to generate 'access token through refresh token' i.e. add it to the token file
 oauth_client = zcrmsdk.ZohoOAuth.get_client_instance()
