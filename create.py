@@ -6,7 +6,7 @@ from config import Config   # this imports the config file where the private dat
 import pandas as pd
 from dateutil.relativedelta import *
 import openpyxl
-from openpyxl.styles import Font, Border, Side, Style
+from openpyxl.styles import Font, Border, Side, PatternFill
 from zcrmsdk import *
 from pprint import pprint
 
@@ -270,7 +270,17 @@ def create_redirects_xls(q, s, c):
     sheet1['C3'].border = surrounded
     sheet1['C4'].border = surrounded
 
-    # sheet1['B2'].style = Style()
+    green = PatternFill("solid", fgColor="F0FFF0")
+    sheet1['B2'].fill = green
+    sheet1['C2'].fill = green
+
+    orange = PatternFill("solid", fgColor="FFF0F5")
+    sheet1['B3'].fill = orange
+    sheet1['C3'].fill = orange
+
+    red = PatternFill("solid", fgColor="FFEFD5")
+    sheet1['B4'].fill = red
+    sheet1['C4'].fill = red
 
     wb.save(redirects_wb_path_name_ext)
 
