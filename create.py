@@ -6,7 +6,7 @@ from config import Config   # this imports the config file where the private dat
 import pandas as pd
 from dateutil.relativedelta import *
 import openpyxl
-from openpyxl.styles import Font, Border, Side
+from openpyxl.styles import Font, Border, Side, Style
 from zcrmsdk import *
 from pprint import pprint
 
@@ -246,12 +246,12 @@ def create_redirects_xls(q, s, c):
     sheet1 = wb.active
     sheet1.title = f'Redirects - {p_number}'
     sheet1['A1'] = f'Redirects for {p_number} - {survey_name}'
-    sheet1['B2'] = 'Quota Full:'
+    sheet1['B2'] = 'Complete:'
     sheet1['B3'] = 'Screened:'
-    sheet1['B4'] = 'Complete:'
-    sheet1['C2'] = q
+    sheet1['B4'] = 'Quota Full:'
+    sheet1['C2'] = c
     sheet1['C3'] = s
-    sheet1['C4'] = c
+    sheet1['C4'] = q
     sheet1.column_dimensions['B'].width = 15
     sheet1.column_dimensions['C'].width = 95
 
@@ -269,6 +269,8 @@ def create_redirects_xls(q, s, c):
     sheet1['C2'].border = surrounded
     sheet1['C3'].border = surrounded
     sheet1['C4'].border = surrounded
+
+    # sheet1['B2'].style = Style()
 
     wb.save(redirects_wb_path_name_ext)
 
@@ -419,6 +421,7 @@ closing_date_api = date_reshuffler(closing_date)
 campaign_start_date_api = date_reshuffler(campaign_start_date)
 campaign_end_date_api = date_reshuffler(campaign_end_date)
 
+#TODO: add this to Create_Proposal.py also
 check_for_bad_chars(survey_name, client_name, sales_contact)
 
 # ZOHO API OPERATIONS ##########################
