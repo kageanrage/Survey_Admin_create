@@ -310,6 +310,14 @@ def enter_data_sa():
     # COMMENT OUT THE LAST ROW FOR TEST MODE, TO AVOID ACTUAL PROJECT CREATION  ###########
 
 
+def check_for_bad_chars(*args):
+    chars_list = ["<", ">", ":", r'"', "/", "?", r"|", "\\", "*"]
+    for string_to_check in args:
+        for char in chars_list:
+            assert char not in string_to_check, f"invalid character: '{char}' found in {string_to_check}"
+        assert string_to_check[-1] != " ", f"'{string_to_check}' cannot end in a space"
+
+
 # TEST / LIVE MODE DETERMINING VARIABLES
 # p_number = 'P-46262'  # this is hardcoded for testing - won't be needed once Zoho is in the chain
 # survey_name_to_search = 'KP test 28-03-19'  # TEST MODE - this is hardcoded for testing - won't be needed once argument passed in bat file
@@ -323,6 +331,7 @@ excel_filename = cfg.live_excel_filename  # LIVE MODE VERSION
 # excel_file_name_path_ext = excel_name_path + ".xlsx"  # TEST MODE VERSION
 # excel_filename = cfg.test_excel_filename  # TEST MODE VERSION
 
+#TODO: add this to the other zoho api scripts
 clean_up()
 
 # DATABASE / PROJECT TRACKING SHEET OPERATIONS
@@ -410,6 +419,7 @@ closing_date_api = date_reshuffler(closing_date)
 campaign_start_date_api = date_reshuffler(campaign_start_date)
 campaign_end_date_api = date_reshuffler(campaign_end_date)
 
+check_for_bad_chars(survey_name, client_name, sales_contact)
 
 # ZOHO API OPERATIONS ##########################
 # 0 run this code every single time:
