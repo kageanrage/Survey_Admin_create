@@ -323,6 +323,7 @@ excel_filename = cfg.live_excel_filename  # LIVE MODE VERSION
 # excel_file_name_path_ext = excel_name_path + ".xlsx"  # TEST MODE VERSION
 # excel_filename = cfg.test_excel_filename  # TEST MODE VERSION
 
+clean_up()
 
 # DATABASE / PROJECT TRACKING SHEET OPERATIONS
 conn = sqlite3.connect(excel_filename + ".db")  # create database file
