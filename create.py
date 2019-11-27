@@ -209,7 +209,7 @@ def login_sa():
     driver.execute_script("document.getElementById('Password').value = '" + str(cfg.pwd) + "';")  # insert password
     pass_elem = driver.find_element_by_id('Password')  # find the 'Password' text box using its element ID
     pass_elem.submit()  # submit password
-    logging.debug('waiting 10 sec to ensure page has loaded')
+    logging.debug('waiting 2 sec to ensure page has loaded')
     time.sleep(2)   # wait 2 seconds for the login process to take place (tested and this is necessary)
 
 
@@ -318,8 +318,17 @@ def enter_data_sa():
     time.sleep(2)
     submit_button = driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button')
     ActionChains(driver).click(submit_button).perform()
-    # driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button').click()  # Submits / creates new project; moved away from .click to ActionChains due to Chrome v78 bug
     # COMMENT OUT THE LAST ROW FOR TEST MODE, TO AVOID ACTUAL PROJECT CREATION  ###########
+
+
+def grab_survey_id():
+    project_sa_listing = driver.find_element_by_link_text(survey_name)
+    project_sa_listing.click()
+    time.sleep(4)
+    current_url = driver.current_url
+    s_id = current_url[53:]
+    print(f's_id = {s_id}')
+    return s_id
 
 
 def check_for_bad_chars(*args):
@@ -470,10 +479,11 @@ login_sa()
 establish_client_dir_if_needed()
 establish_project_dir()
 enter_data_sa()
+survey_id = grab_survey_id()
 
 subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer  # DISABLE FOR TESTING
 subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLE FOR TESTING
 subprocess.Popen(f'explorer "{excel_file_name_path_ext}"')  # opens Survey Tracking file in windows, so I can add in project number manually  # DISABLE FOR TESTING
 
 clean_up()
-pyperclip.copy(p_number)  # copy p_number to clipboard to then manually paste once script is done
+pyperclip.copy(f"{p_number} {survey_id}")  # copy p_number and survey_id to clipboard to then manually paste once script is done
