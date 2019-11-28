@@ -331,6 +331,21 @@ def grab_survey_id():
     return s_id
 
 
+def create_test_quota():
+    add_quota_button = driver.find_element_by_link_text('Add a new quota')
+    add_quota_button.click()
+    time.sleep(2)
+    name_field = driver.find_element_by_id('Name')
+    name_field.send_keys('1')
+    all_states_button = driver.find_element_by_link_text('>>')
+    all_states_button.click()
+    target_field = driver.find_element_by_id('Target')
+    target_field.clear()
+    target_field.send_keys('1')
+    save_new_quota_button = driver.find_element_by_css_selector('.green')
+    save_new_quota_button.click()
+
+
 def check_for_bad_chars(*args):
     chars_list = ["<", ">", ":", r'"', "/", "?", r"|", "\\", "*"]
     for string_to_check in args:
@@ -480,6 +495,7 @@ establish_client_dir_if_needed()
 establish_project_dir()
 enter_data_sa()
 survey_id = grab_survey_id()
+create_test_quota()
 
 driver.close()
 
