@@ -338,7 +338,7 @@ expected_loi = str(int(proj_dict['Expected LOI']))
 client_name = str(proj_dict['Client name'])
 sales_contact = str(proj_dict['Sales Contact'])
 edge_credits = str(int(proj_dict['Edge Credits']))
-close_date_raw = proj_dict['Close month']
+close_date_raw = str(proj_dict['Close month'])
 
 # ZOHO variables
 # Fixed variables - same for all projects
