@@ -9,6 +9,8 @@ import openpyxl
 from openpyxl.styles import Font, Border, Side, PatternFill
 from zcrmsdk import *
 from pprint import pprint
+import se_general, se_admin
+
 
 # to avoid errors:
 # Survey name must be unique in xls
@@ -490,7 +492,7 @@ logging.debug(new_project_dir_path)
 redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number + " redirects.xlsx"
 
 # Survey Admin + Windows levers
-login_sa()
+se_admin.login_sa(driver, cfg.create_survey_URL)  # now using fn from module
 establish_client_dir_if_needed()
 establish_project_dir()
 enter_data_sa()
