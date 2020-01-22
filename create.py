@@ -63,14 +63,12 @@ def generate_closing_date():
     return closing_date_string
 
 
-def establish_client_dir_if_needed():
-    client_dir_path = cfg.projects_dir_path + "\\" + client_name
-    logging.debug(f"client_dir_path = {client_dir_path}")
-    if not os.path.exists(client_dir_path):
-        os.mkdir(client_dir_path)  # creates new directory
-        logging.debug("client_dir_path not found, so client dir has been created")
+def create_dir_if_not_exists(direc):
+    if not os.path.exists(direc):
+        os.mkdir(direc)  # creates new directory
+        logging.debug(f"{direc} not found, so client dir has been created")
     else:
-        logging.debug("client_dir_path found, no need to create")
+        logging.debug(f"{direc} found, no need to create")
 
 
 def date_reshuffler(original_date):
@@ -201,20 +199,6 @@ def grab_redirects():
     return quota_full_url, screened_url, complete_url
 
 
-def establish_project_dir():
-    qf, so, comp = grab_redirects()
-    # print(f'Quota Full: {qf}')
-    # print(f'Screened: {so}')
-    # print(f'Complete: {comp}')
-    logging.debug('checking if this new project dir path exists:')
-    logging.debug(new_project_dir_path)
-    if not os.path.exists(new_project_dir_path):
-        logging.debug('apparently it does not exist, so now trying to create it')
-        print("Creating new directory:", new_project_dir_path)
-        os.mkdir(new_project_dir_path)  # creates new directory
-    create_redirects_xls(qf, so, comp)
-
-
 def create_redirects_xls(q, s, c):
     wb = openpyxl.Workbook()
 
@@ -320,7 +304,7 @@ def create_test_quota():
     save_new_quota_button = driver.find_element_by_css_selector('.green')
     save_new_quota_button.click()
 
-
+# TODO: can use this in other places surely
 def check_for_bad_chars(*args):
     chars_list = ["<", ">", ":", r'"', "/", "?", r"|", "\\", "*"]
     for string_to_check in args:
@@ -400,11 +384,7 @@ p_number = get_potential_record_by_id(new_job_id)  # use that ID to look up the 
 # print(f"p-number for new project is {p_number}")
 
 # Survey Admin variables
-chrome_path = cfg.chrome_path  # location of chromedriver.exe on local drive
-chrome_options = Options()
-chrome_options.add_argument("--disable-notifications")  # to disable notifications popup in Chrome (affects Zoho page)
-driver = webdriver.Chrome(chrome_path, options=chrome_options)  # specify webdriver (chrome via selenium)
-
+driver, wait = se_general.init_selenium()
 
 new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number + " - " + survey_name
 logging.debug('new_project_dir_path has now been created and it looks like this:')
@@ -413,8 +393,12 @@ redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number + " redirect
 
 # Survey Admin + Windows levers
 se_admin.login_sa(driver, cfg.create_survey_URL)  # now using fn from module
-establish_client_dir_if_needed()
-establish_project_dir()
+client_dir_path = cfg.projects_dir_path + "\\" + client_name
+create_dir_if_not_exists(client_dir_path)
+create_dir_if_not_exists(new_project_dir_path)
+qf, so, comp = grab_redirects()
+create_redirects_xls(qf, so, comp)
+
 enter_data_sa()
 survey_id = grab_survey_id()
 create_test_quota()
