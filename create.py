@@ -296,6 +296,7 @@ def create_test_quota():
     save_new_quota_button = driver.find_element_by_css_selector('.green')
     save_new_quota_button.click()
 
+
 # TODO: can use this in other places surely
 def check_for_bad_chars(*args):
     chars_list = ["<", ">", ":", r'"', "/", "?", r"|", "\\", "*"]
@@ -303,6 +304,14 @@ def check_for_bad_chars(*args):
         for char in chars_list:
             assert char not in string_to_check, f"invalid character: '{char}' found in {string_to_check}"
         assert string_to_check[-1] != " ", f"'{string_to_check}' cannot end in a space"
+
+
+def open_relevant_files():
+    excel_name_path = cfg.live_excel_file_path + "\\" + cfg.live_excel_filename
+    excel_file_name_path_ext = excel_name_path + ".xlsx"
+    subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer  # DISABLE FOR TESTING
+    subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLE FOR TESTING
+    subprocess.Popen(f'explorer "{excel_file_name_path_ext}"')  # opens Survey Tracking file in windows, so I can add in project number manually  # DISABLE FOR TESTING
 
 
 proj_dict = se_general.look_up_latest_project()
@@ -354,7 +363,7 @@ check_for_bad_chars(survey_name, client_name, sales_contact)
 
 se_zoho.init_zoho_api()
 
-# TODO: delete this chunk of redundant code if init_zoho_api() is working fine
+# TODO: delete this chunk of redundant code if se_zoho.init_zoho_api() is working fine
 """
 # ZOHO API OPERATIONS ##########################
 # 0 run this code every single time:
@@ -398,10 +407,5 @@ create_test_quota()
 driver.close()
 
 
-excel_name_path = cfg.live_excel_file_path + "\\" + cfg.live_excel_filename  # LIVE MODE VERSION
-excel_file_name_path_ext = excel_name_path + ".xlsx"  # LIVE MODE VERSION
-subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windows explorer  # DISABLE FOR TESTING
-subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLE FOR TESTING
-subprocess.Popen(f'explorer "{excel_file_name_path_ext}"')  # opens Survey Tracking file in windows, so I can add in project number manually  # DISABLE FOR TESTING
-
+open_relevant_files()
 pyperclip.copy(f"{p_number} {survey_id}")  # copy p_number and survey_id to clipboard to then manually paste once script is done
