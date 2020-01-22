@@ -63,14 +63,6 @@ def generate_closing_date():
     return closing_date_string
 
 
-def create_dir_if_not_exists(direc):
-    if not os.path.exists(direc):
-        os.mkdir(direc)  # creates new directory
-        logging.debug(f"{direc} not found, so client dir has been created")
-    else:
-        logging.debug(f"{direc} found, no need to create")
-
-
 def date_reshuffler(original_date):
     logging.debug(f"original date is {original_date}")
     revised_date = original_date[6:10] + "-" + original_date[3:5] + "-" + original_date[0:2]
@@ -394,8 +386,8 @@ redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number + " redirect
 # Survey Admin + Windows levers
 se_admin.login_sa(driver, cfg.create_survey_URL)  # now using fn from module
 client_dir_path = cfg.projects_dir_path + "\\" + client_name
-create_dir_if_not_exists(client_dir_path)
-create_dir_if_not_exists(new_project_dir_path)
+se_general.create_dir_if_not_exists(client_dir_path)
+se_general.create_dir_if_not_exists(new_project_dir_path)
 qf, so, comp = grab_redirects()
 create_redirects_xls(qf, so, comp)
 
