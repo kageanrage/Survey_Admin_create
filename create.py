@@ -9,12 +9,11 @@ import openpyxl
 from openpyxl.styles import Font, Border, Side, PatternFill
 from zcrmsdk import *
 from pprint import pprint
-import se_general, se_admin
+import se_general, se_admin, se_zoho
 
 
 # to avoid errors:
-# Survey name must be unique in xls
-# For 'use last row in database', Sales Contact for that last one must be populated, and that column must be empty in excel from that last one onwards
+# Client Name in xls must be populated, and that column must be empty in excel from that new job onwards
 
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')  # turns on logging
 # logging.disable(logging.CRITICAL)     # switches off logging when desired
@@ -24,15 +23,6 @@ os.chdir(cfg.cwd)  # change the current working directory to the one stipulated 
 
 
 # FUNCTIONS ################################################
-
-
-def pass_in_survey_name():    # reads in arg string from batch file
-    if len(sys.argv) > 1:
-        surv_name = str(sys.argv[1])  # takes the desired survey name from the command line arg, passed by the batch file
-    else:
-        surv_name = "last_row_in_table"
-    return surv_name
-
 
 def generate_dates_sa():
     now = datetime.datetime.now()  # current date and time as datetime object
@@ -341,8 +331,6 @@ def check_for_bad_chars(*args):
 
 proj_dict = se_general.look_up_latest_project()
 
-
-
 # SQL variables for Zoho + Survey Admin
 survey_name = proj_dict['Survey Name']
 topic = proj_dict['Topic']
@@ -387,6 +375,11 @@ campaign_end_date_api = date_reshuffler(campaign_end_date)
 #TODO: add this to Create_Proposal.py also
 check_for_bad_chars(survey_name, client_name, sales_contact)
 
+
+se_zoho.init_zoho_api()
+
+# TODO: delete this chunk of redundant code if init_zoho_api() is working fine
+"""
 # ZOHO API OPERATIONS ##########################
 # 0 run this code every single time:
 zcrmsdk.ZCRMRestClient.initialize(cfg.config_dict)
@@ -399,7 +392,7 @@ oauth_tokens = oauth_client.generate_access_token_from_refresh_token(refresh_tok
 
 # 3 - if access token already refreshed in past hour, can proceed without any initialisation code apart from what's specified at '# 0'
 
-
+"""
 
 # Zoho levers
 new_job_id = create_potential()  # create the new potential and store its ID in this variable
@@ -435,5 +428,4 @@ subprocess.Popen(f'explorer "{new_project_dir_path}"')  # opens new dir in windo
 subprocess.Popen(f'explorer "{redirects_wb_path_name_ext}"')  # opens file in windows  # DISABLE FOR TESTING
 subprocess.Popen(f'explorer "{excel_file_name_path_ext}"')  # opens Survey Tracking file in windows, so I can add in project number manually  # DISABLE FOR TESTING
 
-clean_up()
 pyperclip.copy(f"{p_number} {survey_id}")  # copy p_number and survey_id to clipboard to then manually paste once script is done
