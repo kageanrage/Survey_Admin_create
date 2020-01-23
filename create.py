@@ -1,7 +1,4 @@
 import os, time, pprint, logging, sqlite3, subprocess, pyautogui, send2trash, datetime, calendar, sys, zcrmsdk, pyperclip
-# TODO: remove first two selenium imports once tested and init_selenium fn is working
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from config import Config   # this imports the config file where the private data sits
 import pandas as pd
@@ -12,7 +9,7 @@ from zcrmsdk import *
 from pprint import pprint
 import se_general, se_admin, se_zoho
 
-
+# TODO: for when I don't paste the P-number and SurveyID immediately, save them to the redirects xls so I can paste from there
 # to avoid errors:
 # Client Name in xls must be populated, and that column must be empty in excel from that new job onwards
 
@@ -363,22 +360,6 @@ check_for_bad_chars(survey_name, client_name, sales_contact)
 
 
 se_zoho.init_zoho_api()
-
-# TODO: delete this chunk of redundant code if se_zoho.init_zoho_api() is working fine
-"""
-# ZOHO API OPERATIONS ##########################
-# 0 run this code every single time:
-zcrmsdk.ZCRMRestClient.initialize(cfg.config_dict)
-
-# 2 - second chunk of code (run in isolation) - I ran this to attempt to generate 'access token through refresh token' i.e. add it to the token file
-oauth_client = zcrmsdk.ZohoOAuth.get_client_instance()
-refresh_token = cfg.refresh_token
-user_identifier = cfg.zoho_uname
-oauth_tokens = oauth_client.generate_access_token_from_refresh_token(refresh_token, user_identifier)
-
-# 3 - if access token already refreshed in past hour, can proceed without any initialisation code apart from what's specified at '# 0'
-
-"""
 
 # Zoho levers
 new_job_id = create_potential()  # create the new potential and store its ID in this variable
