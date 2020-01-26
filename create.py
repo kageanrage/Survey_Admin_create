@@ -234,6 +234,30 @@ def create_redirects_xls(q, s, c):
     wb.save(redirects_wb_path_name_ext)
 
 
+def add_fields_to_redirects_xls():
+    wb = openpyxl.load_workbook(dir + "\\" + p_number + " redirects.xlsx")
+
+    sheet1 = wb.active
+
+    sheet1['B7'] = 'P number:'
+    sheet1['C7'] = p_number
+    sheet1['B8'] = 'Survey ID:'
+    sheet1['C8'] = survey_id
+
+    emboldened = Font(bold=True)
+    sheet1['B7'].font = emboldened
+    sheet1['B8'].font = emboldened
+
+    thin = Side(border_style='thin')
+    surrounded = Border(top=thin, left=thin, right=thin, bottom=thin)
+    sheet1['B7'].border = surrounded
+    sheet1['B8'].border = surrounded
+    sheet1['C7'].border = surrounded
+    sheet1['C8'].border = surrounded
+
+    wb.save(dir + "\\" + p_number + " redirects.xlsx")
+
+
 def enter_data_sa():
     driver.find_element_by_id('Name').send_keys(survey_name)  # using send_keys instead of script command here due to potential inclusion of apostrophes etc which stuff up the js syntax
     driver.execute_script("document.getElementById('Status').value = '" + str(status) + "';")
@@ -295,15 +319,6 @@ def create_test_quota():
     save_new_quota_button.click()
 
 
-# TODO: can use this in other places surely
-def check_for_bad_chars(*args):
-    chars_list = ["<", ">", ":", r'"', "/", "?", r"|", "\\", "*"]
-    for string_to_check in args:
-        for char in chars_list:
-            assert char not in string_to_check, f"invalid character: '{char}' found in {string_to_check}"
-        assert string_to_check[-1] != " ", f"'{string_to_check}' cannot end in a space"
-
-
 def open_relevant_files():
     excel_name_path = cfg.live_excel_file_path + "\\" + cfg.live_excel_filename
     excel_file_name_path_ext = excel_name_path + ".xlsx"
@@ -356,7 +371,7 @@ campaign_start_date_api = date_reshuffler(campaign_start_date)
 campaign_end_date_api = date_reshuffler(campaign_end_date)
 
 #TODO: add this to Create_Proposal.py also
-check_for_bad_chars(survey_name, client_name, sales_contact)
+se_general.check_for_bad_chars(survey_name, client_name, sales_contact)
 
 
 se_zoho.init_zoho_api()
@@ -384,6 +399,7 @@ create_redirects_xls(qf, so, comp)
 
 enter_data_sa()
 survey_id = grab_survey_id()
+add_fields_to_redirects_xls()
 create_test_quota()
 
 driver.close()
