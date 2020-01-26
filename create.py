@@ -9,7 +9,7 @@ from zcrmsdk import *
 from pprint import pprint
 import se_general, se_admin, se_zoho
 
-# TODO: for when I don't paste the P-number and SurveyID immediately, save them to the redirects xls so I can paste from there
+
 # to avoid errors:
 # Client Name in xls must be populated, and that column must be empty in excel from that new job onwards
 
@@ -370,7 +370,6 @@ closing_date_api = date_reshuffler(closing_date)
 campaign_start_date_api = date_reshuffler(campaign_start_date)
 campaign_end_date_api = date_reshuffler(campaign_end_date)
 
-#TODO: add this to Create_Proposal.py also
 se_general.check_for_bad_chars(survey_name, client_name, sales_contact)
 
 
