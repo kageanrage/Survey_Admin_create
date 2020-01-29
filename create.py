@@ -235,7 +235,7 @@ def create_redirects_xls(q, s, c):
 
 
 def add_fields_to_redirects_xls():
-    filename_inc_dir = f"{dir}\\{p_number} redirects.xlsx"  # changed this on 29-01-20
+    filename_inc_dir = f"{new_project_dir_path}\\{p_number} redirects.xlsx"  # changed this on 29-01-20
     wb = openpyxl.load_workbook(filename_inc_dir)  # changed this on 29-01-20
 
     sheet1 = wb.active
