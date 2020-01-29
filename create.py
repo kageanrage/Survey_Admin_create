@@ -256,7 +256,7 @@ def add_fields_to_redirects_xls():
     sheet1['C7'].border = surrounded
     sheet1['C8'].border = surrounded
 
-    wb.save(dir + "\\" + p_number + " redirects.xlsx")
+    wb.save(filename_inc_dir)
 
 
 def enter_data_sa():
@@ -374,30 +374,9 @@ campaign_end_date_api = date_reshuffler(campaign_end_date)
 se_general.check_for_bad_chars(survey_name, client_name, sales_contact)
 
 
-
+# Zoho
 oauth_client, refresh_token, user_identifier, oauth_tokens = se_zoho.init_zoho_api()
 
-# section - locally coding again instead of pulling from module due to error, although currently commented out
-# TODO: if se_zoho.init_zoho_api() fails with an error and I can't fix, will need to re-institute the below block and comment out the above fn
-"""
-# ZOHO API OPERATIONS ##########################
-# 0 run this code every single time:
-zcrmsdk.ZCRMRestClient.initialize(cfg.config_dict)
-
-# 2 - second chunk of code (run in isolation) - I ran this to attempt to generate 'access token through refresh token' i.e. add it to the token file
-oauth_client = zcrmsdk.ZohoOAuth.get_client_instance()
-refresh_token = cfg.refresh_token
-user_identifier = cfg.zoho_uname
-oauth_tokens = oauth_client.generate_access_token_from_refresh_token(refresh_token, user_identifier)
-
-# 3 - if access token already refreshed in past hour, can proceed without any initialisation code apart from what's specified at '# 0'
-
-"""
-
-#################################
-
-
-# Zoho levers
 new_job_id = create_potential()  # create the new potential and store its ID in this variable
 p_number = get_potential_record_by_id(new_job_id)  # use that ID to look up the newly created potential and store its P-number in this variable
 # print(f"p-number for new project is {p_number}")
@@ -424,7 +403,6 @@ add_fields_to_redirects_xls()
 create_test_quota()
 
 driver.close()
-
 
 open_relevant_files()
 pyperclip.copy(f"{p_number} {survey_id}")  # copy p_number and survey_id to clipboard to then manually paste once script is done
