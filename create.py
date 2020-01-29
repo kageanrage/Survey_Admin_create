@@ -235,7 +235,8 @@ def create_redirects_xls(q, s, c):
 
 
 def add_fields_to_redirects_xls():
-    wb = openpyxl.load_workbook(dir + "\\" + p_number + " redirects.xlsx")
+    filename_inc_dir = f"{dir}\\{p_number} redirects.xlsx"  # changed this on 29-01-20
+    wb = openpyxl.load_workbook(filename_inc_dir)  # changed this on 29-01-20
 
     sheet1 = wb.active
 
@@ -373,7 +374,28 @@ campaign_end_date_api = date_reshuffler(campaign_end_date)
 se_general.check_for_bad_chars(survey_name, client_name, sales_contact)
 
 
-se_zoho.init_zoho_api()
+
+oauth_client, refresh_token, user_identifier, oauth_tokens = se_zoho.init_zoho_api()
+
+# section - locally coding again instead of pulling from module due to error, although currently commented out
+# TODO: if se_zoho.init_zoho_api() fails with an error and I can't fix, will need to re-institute the below block and comment out the above fn
+"""
+# ZOHO API OPERATIONS ##########################
+# 0 run this code every single time:
+zcrmsdk.ZCRMRestClient.initialize(cfg.config_dict)
+
+# 2 - second chunk of code (run in isolation) - I ran this to attempt to generate 'access token through refresh token' i.e. add it to the token file
+oauth_client = zcrmsdk.ZohoOAuth.get_client_instance()
+refresh_token = cfg.refresh_token
+user_identifier = cfg.zoho_uname
+oauth_tokens = oauth_client.generate_access_token_from_refresh_token(refresh_token, user_identifier)
+
+# 3 - if access token already refreshed in past hour, can proceed without any initialisation code apart from what's specified at '# 0'
+
+"""
+
+#################################
+
 
 # Zoho levers
 new_job_id = create_potential()  # create the new potential and store its ID in this variable
