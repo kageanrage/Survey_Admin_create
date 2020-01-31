@@ -281,7 +281,8 @@ def enter_data_sa():
     driver.execute_script("document.getElementById('OutcomeCompleteSecondaryRewardValue').value = '" + str(prize_draw_entries) + "';")
     driver.find_element_by_id('OutcomeCompleteSecondaryRewardType').send_keys('Reward')
     driver.find_element_by_id('OutcomeCompleteRewardType').send_keys(the_word_credits)
-    driver.find_element_by_id('ExcludePastSurveyIds').send_keys(survey_ids_to_exclude)  # added 31-01-20
+    if len(str(survey_ids_to_exclude)) > 10:
+        driver.find_element_by_id('ExcludePastSurveyIds').send_keys(survey_ids_to_exclude)  # added 31-01-20
     # driver.find_element_by_id('TermsAndConditionsPdf').click()  # moved away from .click to ActionChains due to Chrome v78 bug
     tc_button = driver.find_element_by_id('TermsAndConditionsPdf')
     ActionChains(driver).click(tc_button).perform()
