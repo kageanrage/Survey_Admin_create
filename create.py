@@ -277,11 +277,11 @@ def enter_data_sa():
     driver.execute_script("document.getElementById('OutcomeCompleteRewardValue').value = '" + str(edge_credits) + "';")
     driver.find_element_by_id('FullOutcomeRewardId').send_keys(qf_outcome_reward_id)  # this didn't work via JS execution method
     driver.find_element_by_id('ScreenedOutcomeRewardId').send_keys(so_outcome_reward_id)  # this didn't work via JS execution method
-    # driver.find_element_by_id('CompleteOutcomeRewardId').send_keys(str_saying_comp_surv_reg_p_d)  # 23-06 commented out so no longer changes from default
-    driver.find_element_by_id('CompleteOutcomeSecondaryRewardId').send_keys(str_saying_comp_surv_reg_p_d)  # 23-06 added
+    driver.find_element_by_id('CompleteOutcomeSecondaryRewardId').send_keys(str_saying_comp_surv_reg_p_d)
     driver.execute_script("document.getElementById('OutcomeCompleteSecondaryRewardValue').value = '" + str(prize_draw_entries) + "';")
     driver.find_element_by_id('OutcomeCompleteSecondaryRewardType').send_keys('Reward')
-    driver.find_element_by_id('OutcomeCompleteRewardType').send_keys(the_word_credits)  # added 23-06-19
+    driver.find_element_by_id('OutcomeCompleteRewardType').send_keys(the_word_credits)
+    driver.find_element_by_id('ExcludePastSurveyIds').send_keys(survey_ids_to_exclude)  # added 31-01-20
     # driver.find_element_by_id('TermsAndConditionsPdf').click()  # moved away from .click to ActionChains due to Chrome v78 bug
     tc_button = driver.find_element_by_id('TermsAndConditionsPdf')
     ActionChains(driver).click(tc_button).perform()
@@ -330,7 +330,7 @@ def open_relevant_files():
 
 proj_dict = se_general.look_up_latest_project()
 
-# SQL variables for Zoho + Survey Admin
+# variables for Zoho + Survey Admin
 survey_name = proj_dict['Survey Name']
 topic = proj_dict['Topic']
 expected_loi = str(int(proj_dict['Expected LOI']))
@@ -338,6 +338,7 @@ client_name = str(proj_dict['Client name'])
 sales_contact = str(proj_dict['Sales Contact'])
 edge_credits = str(int(proj_dict['Edge Credits']))
 close_date_raw = str(proj_dict['Close month'])
+survey_ids_to_exclude = str(proj_dict['survey ids to exclude'])
 
 # ZOHO variables
 # Fixed variables - same for all projects
