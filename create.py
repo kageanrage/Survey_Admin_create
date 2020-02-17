@@ -329,6 +329,34 @@ def open_relevant_files():
     subprocess.Popen(f'explorer "{excel_file_name_path_ext}"')  # opens Survey Tracking file in windows, so I can add in project number manually  # DISABLE FOR TESTING
 
 
+def determine_exclusion_survey_ids(survey_name):
+    proj_dict = se_general.look_up_project(survey_name)
+    if str(proj_dict['survey names to exclude']) != 'nan':  # if survey names listed for exclusion
+        print('Survey names to exclude looks like this:')
+        print(proj_dict['survey names to exclude'])
+        str_of_survey_names_to_exclude = proj_dict['survey names to exclude']
+        excl_surv_names = str_of_survey_names_to_exclude.split(',')
+
+        survey_id_excl_list = []
+
+        for s_name in excl_surv_names:
+            # proj_dict for each of the survey ids I'm looking up
+            proj_dict = se_general.look_up_project(s_name)
+            survey_id_excl_list.append(proj_dict['Survey ID'])
+
+        print('survey ids to exclude list looks like this:')
+        print(survey_id_excl_list)
+    elif str(proj_dict['survey ids to exclude']) != 'nan':  # if survey_ids are manually listed for exclusion
+        survey_id_excl_list = proj_dict['survey ids to exclude']
+        print('survey ids to exclude list looks like this:')
+        print(survey_id_excl_list)
+    else:
+        print('No survey ids to exclude')
+        survey_id_excl_list = ""
+
+    return survey_id_excl_list
+
+
 proj_dict = se_general.look_up_latest_project()
 
 # variables for Zoho + Survey Admin
@@ -339,7 +367,7 @@ client_name = str(proj_dict['Client name'])
 sales_contact = str(proj_dict['Sales Contact'])
 edge_credits = str(int(proj_dict['Edge Credits']))
 close_date_raw = str(proj_dict['Close month'])
-survey_ids_to_exclude = str(proj_dict['survey ids to exclude'])
+survey_ids_to_exclude = determine_exclusion_survey_ids(survey_name)
 
 # ZOHO variables
 # Fixed variables - same for all projects
