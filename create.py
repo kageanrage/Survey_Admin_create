@@ -282,7 +282,7 @@ def enter_data_sa():
     driver.find_element_by_id('OutcomeCompleteSecondaryRewardType').send_keys('Reward')
     driver.find_element_by_id('OutcomeCompleteRewardType').send_keys(the_word_credits)
     if len(str(survey_ids_to_exclude)) > 10:
-        driver.find_element_by_id('ExcludePastSurveyIds').send_keys(survey_ids_to_exclude)  # added 31-01-20
+        driver.find_element_by_id('ExcludePastSurveyIds').send_keys(survey_ids_to_exclude_str)  # amended 03-03-20
     # driver.find_element_by_id('TermsAndConditionsPdf').click()  # moved away from .click to ActionChains due to Chrome v78 bug
     tc_button = driver.find_element_by_id('TermsAndConditionsPdf')
     ActionChains(driver).click(tc_button).perform()
@@ -367,7 +367,20 @@ client_name = str(proj_dict['Client name'])
 sales_contact = str(proj_dict['Sales Contact'])
 edge_credits = str(int(proj_dict['Edge Credits']))
 close_date_raw = str(proj_dict['Close month'])
+
 survey_ids_to_exclude = determine_exclusion_survey_ids(survey_name)
+print(f'type of survey_ids_to_exclude is {type(survey_ids_to_exclude)}')
+if len(survey_ids_to_exclude) == 0:
+    survey_ids_to_exclude_str = ""
+    print('No exclusions')
+if len(survey_ids_to_exclude) == 1:
+    survey_ids_to_exclude_str = str(survey_ids_to_exclude)
+    print('One exclusion')
+else:
+    survey_ids_to_exclude_str = ",".join(survey_ids_to_exclude)
+    print('More than one exclusion')
+    print('Survey exclusions string looks like this:')
+    print(survey_ids_to_exclude_str)
 
 # ZOHO variables
 # Fixed variables - same for all projects
