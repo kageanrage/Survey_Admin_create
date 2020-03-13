@@ -297,7 +297,10 @@ def enter_data_sa():
 
 
 def grab_survey_id():
-    project_sa_listing = driver.find_element_by_link_text(survey_name)
+    # project_sa_listing = driver.find_element_by_link_text(survey_name)  # no longer works from Mar-20 with SA change to html table
+    print('pausing for a few sec to make sure page has loaded')
+    time.sleep(4)
+    project_sa_listing = driver.find_element_by_css_selector(".selectable-row:nth-child(1) > .clickable:nth-child(1)")
     project_sa_listing.click()
     time.sleep(4)
     current_url = driver.current_url
