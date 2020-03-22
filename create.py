@@ -335,6 +335,7 @@ def open_relevant_files():
 def determine_exclusion_survey_ids(survey_name):
     proj_dict = se_general.look_up_project(survey_name)
     if str(proj_dict['survey names to exclude']) != 'nan':  # if survey names listed for exclusion
+        print('There are survey names listed in the xls, to exclude.')
         print('Survey names to exclude looks like this:')
         print(proj_dict['survey names to exclude'])
         str_of_survey_names_to_exclude = proj_dict['survey names to exclude']
@@ -350,6 +351,7 @@ def determine_exclusion_survey_ids(survey_name):
         print('survey ids to exclude list looks like this:')
         print(survey_id_excl_list)
     elif str(proj_dict['survey ids to exclude']) != 'nan':  # if survey_ids are manually listed for exclusion
+        print('There are individual survey IDs listed in xls to exclude.')
         survey_id_excl_list = proj_dict['survey ids to exclude']
         print('survey ids to exclude list looks like this:')
         print(survey_id_excl_list)
