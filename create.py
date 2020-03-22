@@ -297,10 +297,17 @@ def enter_data_sa():
 
 
 def grab_survey_id():
-    # project_sa_listing = driver.find_element_by_link_text(survey_name)  # no longer works from Mar-20 with SA change to html table
-    print('pausing for a few sec to make sure page has loaded')
+    project_sa_listing = driver.find_element_by_link_text(survey_name)  # no longer works from Mar-20 with SA change to html table, but perhaps fixed 23-03    print('pausing for a few sec to make sure page has loaded')
     time.sleep(4)
-    project_sa_listing = driver.find_element_by_css_selector(".selectable-row:nth-child(1) > .clickable:nth-child(1)")
+    # use the following chunk if this method doesn't work and I need to sort the table and click first row:
+    """
+    # start_date_header = driver.find_element_by_css_selector('css=.col-06 > .mvc-grid-title')
+    # start_date_header.click()
+    # time.sleep(3)
+    # start_date_header.click()
+    # time.sleep(3)
+    # project_sa_listing = driver.find_element_by_css_selector(".selectable-row:nth-child(1) > .clickable:nth-child(1)")
+    """
     project_sa_listing.click()
     time.sleep(4)
     current_url = driver.current_url
