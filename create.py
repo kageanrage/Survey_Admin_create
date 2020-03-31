@@ -357,7 +357,7 @@ def determine_exclusion_survey_ids(survey_name):
 
         print('survey ids to exclude list looks like this:')
         print(survey_id_excl_list)
-        survey_ids_to_exclude_str = ",".join(survey_ids_to_exclude)
+        survey_ids_to_exclude_str = ",".join(survey_id_excl_list)  # changed 31-03-20
 
     elif str(proj_dict['survey ids to exclude']) != 'nan':  # if survey_ids are manually listed for exclusion
         print('There are individual survey IDs listed in xls to exclude.')
