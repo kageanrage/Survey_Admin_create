@@ -8,6 +8,7 @@ from openpyxl.styles import Font, Border, Side, PatternFill
 from zcrmsdk import *
 from pprint import pprint
 import se_general, se_admin, se_zoho
+import cmv_quotas
 
 
 # to avoid errors:
@@ -432,7 +433,8 @@ p_number = get_potential_record_by_id(new_job_id)  # use that ID to look up the 
 # print(f"p-number for new project is {p_number}")
 
 # Survey Admin variables
-driver, wait = se_general.init_selenium()
+driver = se_general.init_selenium()
+driver.implicitly_wait(30)
 
 new_project_dir_path = cfg.projects_dir_path + "\\" + client_name + "\\" + p_number + " - " + survey_name
 logging.debug('new_project_dir_path has now been created and it looks like this:')
@@ -451,6 +453,11 @@ enter_data_sa()
 survey_id = grab_survey_id()
 add_fields_to_redirects_xls()
 create_test_quota()
+
+# CMV quotas
+if "CMV" in survey_name:
+    print(f"CMV is in survey_name: {survey_name}")
+    cmv_quotas.generate_cmv_quotas(cfg, driver)
 
 driver.close()
 
