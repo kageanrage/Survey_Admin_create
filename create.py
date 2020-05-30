@@ -1,4 +1,4 @@
-import os, time, pprint, logging, sqlite3, subprocess, pyautogui, send2trash, datetime, calendar, sys, zcrmsdk, pyperclip
+import os, time, pprint, logging, sqlite3, subprocess, pyautogui, send2trash, datetime, calendar, sys, zcrmsdk, pyperclip, shutil
 from selenium.webdriver.common.action_chains import ActionChains
 from config import Config   # this imports the config file where the private data sits
 import pandas as pd
@@ -458,6 +458,7 @@ create_test_quota()
 if "CMV" in survey_name:
     print(f"CMV is in survey_name: {survey_name}")
     cmv_quotas.generate_cmv_quotas(cfg, driver)
+    shutil.copy(cfg.cmv_quota_template, new_project_dir_path + "\\" + "cmv_quotas_template.xlsx")
 
 driver.close()
 
