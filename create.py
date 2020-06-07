@@ -177,17 +177,7 @@ def get_potential_record_by_id(id):
         print(ex.error_content)
 
 
-def grab_redirects():
-    logging.debug('running grab_redirects function')
-    quota_full_url = driver.find_element_by_id('OutcomeFullUrl').get_attribute('value')  # find the right element and grab URL from box
-    screened_url = driver.find_element_by_id('OutcomeScreenedUrl').get_attribute('value')  # find the right element and grab URL from box
-    complete_url = driver.find_element_by_id('OutcomeCompleteUrl').get_attribute('value')  # find the right element and grab URL from box
-    quota_full_url = quota_full_url[0:83]  # trim off the last 3 characters
-    screened_url = screened_url[0:83]  # trim off the last 3 characters
-    complete_url = complete_url[0:83]  # trim off the last 3 characters
-    # logging.debug('waiting another 3 seconds')
-    # time.sleep(3)
-    return quota_full_url, screened_url, complete_url
+
 
 
 def create_redirects_xls(q, s, c):
@@ -446,7 +436,7 @@ se_admin.login_sa(driver, cfg.create_survey_URL)  # now using fn from module
 client_dir_path = cfg.projects_dir_path + "\\" + client_name
 se_general.create_dir_if_not_exists(client_dir_path)
 se_general.create_dir_if_not_exists(new_project_dir_path)
-qf, so, comp = grab_redirects()
+qf, so, comp = se_admin.grab_redirects(driver, guid_only=False)
 create_redirects_xls(qf, so, comp)
 
 enter_data_sa()
