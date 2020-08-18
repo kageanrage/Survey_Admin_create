@@ -282,6 +282,19 @@ def enter_data_sa():
     time.sleep(2)
     pyautogui.press('enter')
     time.sleep(2)
+
+    # add intro popup text
+    tiny_mce = driver.find_element_by_css_selector('html')
+    tiny_mce.click()
+    time.sleep(1)
+    if "CMV" in survey_name:
+        # print(f"CMV is in survey_name: {survey_name}")
+        pyautogui.typewrite(cfg.cmv_pre_survey_text)
+        time.sleep(2)
+    else:
+        pyautogui.typewrite(cfg.default_pre_survey_text)
+        time.sleep(2)
+
     submit_button = driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button')
     ActionChains(driver).click(submit_button).perform()
     # COMMENT OUT THE LAST ROW FOR TEST MODE, TO AVOID ACTUAL PROJECT CREATION  ###########
