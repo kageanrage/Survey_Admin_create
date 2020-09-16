@@ -457,7 +457,7 @@ se_admin.login_sa(driver, cfg.create_survey_URL)  # now using fn from module
 client_dir_path = cfg.projects_dir_path + "\\" + client_name
 se_general.create_dir_if_not_exists(client_dir_path)
 se_general.create_dir_if_not_exists(new_project_dir_path)
-qf, so, comp = se_admin.grab_redirects(driver, guid_only=False)
+qf, so, comp = se_admin.grab_redirects(driver, cfg.redirect_prefix, guid_only=False)
 create_redirects_xls(qf, so, comp)
 
 enter_data_sa()
