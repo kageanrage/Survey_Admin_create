@@ -1,5 +1,6 @@
 import os, time, pprint, logging, sqlite3, subprocess, pyautogui, send2trash, datetime, calendar, sys, zcrmsdk, pyperclip, shutil
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from config import Config   # this imports the config file where the private data sits
 import pandas as pd
 from dateutil.relativedelta import *
@@ -287,6 +288,13 @@ def enter_data_sa():
     tiny_mce = driver.find_element_by_css_selector('html')
     tiny_mce.click()
     time.sleep(1)
+    pyautogui.typewrite(' ')
+    time.sleep(1)
+    pyautogui.typewrite(' ')
+    time.sleep(1)
+    ActionChains(driver).send_keys(Keys.ESCAPE).perform()
+
+    time.sleep(3)
     if "CMV" in survey_name:
         # print(f"CMV is in survey_name: {survey_name}")
         pyautogui.typewrite(cfg.cmv_pre_survey_text)
@@ -315,7 +323,7 @@ def grab_survey_id():
     project_sa_listing.click()
     time.sleep(4)
     current_url = driver.current_url
-    s_id = current_url[53:]
+    s_id = current_url[59:]
     print(f's_id = {s_id}')
     return s_id
 
