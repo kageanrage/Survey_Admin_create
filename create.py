@@ -325,6 +325,7 @@ def grab_survey_id():
     current_url = driver.current_url
     s_id = current_url[59:]
     print(f's_id = {s_id}')
+    assert len(s_id) == 36, f'The length of survey_id must be 36 and in fact is {len(s_id)}'
     return s_id
 
 
