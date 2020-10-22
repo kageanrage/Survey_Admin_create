@@ -275,7 +275,7 @@ def enter_data_sa():
     driver.find_element_by_id('OutcomeCompleteRewardType').send_keys(the_word_credits)
 
     if mobile_friendly == "No":
-        driver.find_element_by_id('DesktopOnly').click()  # added 22-10, untested
+        driver.find_element_by_id('DesktopOnly').click()
     if len(str(survey_ids_to_exclude)) > 10:
         driver.find_element_by_id('ExcludePastSurveyIds').send_keys(survey_ids_to_exclude)  # amended 03-03-20
     # driver.find_element_by_id('TermsAndConditionsPdf').click()  # moved away from .click to ActionChains due to Chrome v78 bug
