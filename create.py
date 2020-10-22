@@ -273,6 +273,9 @@ def enter_data_sa():
     driver.execute_script("document.getElementById('OutcomeCompleteSecondaryRewardValue').value = '" + str(prize_draw_entries) + "';")
     driver.find_element_by_id('OutcomeCompleteSecondaryRewardType').send_keys('Reward')
     driver.find_element_by_id('OutcomeCompleteRewardType').send_keys(the_word_credits)
+
+    if mobile_friendly == "No":
+        driver.find_element_by_id('DesktopOnly').click()  # added 22-10, untested
     if len(str(survey_ids_to_exclude)) > 10:
         driver.find_element_by_id('ExcludePastSurveyIds').send_keys(survey_ids_to_exclude)  # amended 03-03-20
     # driver.find_element_by_id('TermsAndConditionsPdf').click()  # moved away from .click to ActionChains due to Chrome v78 bug
@@ -399,6 +402,7 @@ client_name = str(proj_dict['Client name'])
 sales_contact = str(proj_dict['Sales Contact'])
 edge_credits = str(int(proj_dict['Edge Credits']))
 close_date_raw = str(proj_dict['Close month'])
+mobile_friendly = str(proj_dict['mobile_friendly'])
 
 survey_ids_to_exclude = determine_exclusion_survey_ids(survey_name)
 
@@ -421,6 +425,7 @@ so_outcome_reward_id = 'Disqualified Survey - Regular Prize Draw'
 str_saying_comp_surv_reg_p_d = 'Completed Survey - Regular Prize Draw'
 the_word_credits = 'Credits'
 tc_filepath = cfg.tc_filepath  # file path of T&Cs pdf file
+
 
 
 # DATE VARIABLES
