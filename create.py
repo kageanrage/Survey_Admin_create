@@ -459,7 +459,10 @@ logging.debug(new_project_dir_path)
 redirects_wb_path_name_ext = new_project_dir_path + "\\" + p_number + " redirects.xlsx"
 
 # Survey Admin + Windows levers
-se_admin.login_sa(driver, cfg.create_survey_URL)  # now using fn from module
+# se_admin.login_sa(driver, cfg.create_survey_URL)  # now using fn from module
+driver.get(cfg.create_survey_URL)
+time.sleep(60)
+
 client_dir_path = cfg.projects_dir_path + "\\" + client_name
 se_general.create_dir_if_not_exists(client_dir_path)
 se_general.create_dir_if_not_exists(new_project_dir_path)
