@@ -31,11 +31,12 @@ def generate_dates_sa():
     this_time_next_month = now + relativedelta(months=+1)  # date time object for today's date + time in a month
     next_month = this_time_next_month.month  # isolating just the number of next month
     year_next_month = this_time_next_month.year  # isolating just the year it will be next month
+    year_next_month_plus_one = year_next_month + 1  # Added 02-11-21 to push end dates a year into future
     next_month_string = str(next_month)  # convert number of next month to a string
     if len(next_month_string) == 1:  # if next month is only 1 digit...
         next_month_string = "0" + next_month_string  # ...add a leading zero
-    end_date_string = str(calendar.monthrange(year_next_month, next_month)[1]) + "/" + str(next_month_string) \
-                      + "/" + str(year_next_month) + " 00:00:00"  # compile full end date string
+    end_date_string = str(calendar.monthrange(year_next_month_plus_one, next_month)[1]) + "/" + str(next_month_string) \
+                      + "/" + str(year_next_month_plus_one) + " 00:00:00"  # compile full end date string - changed 02-11-21 to push end dates a year into future
     this_time_last_month = now + relativedelta(months=-1)  # date time object for today's date + time a month ago
     last_month = this_time_last_month.month  # isolating just the number of last month
     year_last_month = this_time_last_month.year  # isolating just the year it was last month
