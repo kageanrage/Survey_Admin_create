@@ -262,18 +262,31 @@ def enter_data_sa():
     driver.execute_script("document.getElementById('ExternalSurveyUrl').value = '" + str(external_survey_url) + "';")
     driver.execute_script("document.getElementById('StartDate').value = '" + str(start_date) + "';")
     driver.execute_script("document.getElementById('EndDate').value = '" + str(end_date) + "';")
+
+    # Outcome messages
     driver.execute_script("document.getElementById('OutcomeFull').value = '" + str(qf_msg) + "';")
     driver.execute_script("document.getElementById('OutcomeScreened').value = '" + str(so_msg) + "';")
     driver.execute_script("document.getElementById('OutcomeComplete').value = '" + str(comp_msg) + "';")
+
+    # Outcome value counts
     driver.execute_script("document.getElementById('OutcomeFullRewardValue').value = '" + str(prize_draw_entries) + "';")
     driver.execute_script("document.getElementById('OutcomeScreenedRewardValue').value = '" + str(prize_draw_entries) + "';")
-    driver.execute_script("document.getElementById('OutcomeCompleteRewardValue').value = '" + str(edge_credits) + "';")
+    driver.execute_script("document.getElementById('OutcomeCompleteRewardValue').value = '" + str(prize_draw_entries) + "';")  # This will just input a '1'
+
+    # Outcome EC values
+    driver.execute_script("document.getElementById('OutcomeCompleteSecondaryRewardValue').value = '" + str(edge_credits) + "';")
+    driver.execute_script("document.getElementById('OutcomeFullSecondaryRewardValue').value = '" + str(ec_value_for_so_and_qf) + "';")
+    driver.execute_script("document.getElementById('OutcomeScreenedSecondaryRewardValue').value = '" + str(ec_value_for_so_and_qf) + "';")
+
+    # Outcome Reward IDs
     driver.find_element_by_id('FullOutcomeRewardId').send_keys(qf_outcome_reward_id)  # this didn't work via JS execution method
     driver.find_element_by_id('ScreenedOutcomeRewardId').send_keys(so_outcome_reward_id)  # this didn't work via JS execution method
-    driver.find_element_by_id('CompleteOutcomeSecondaryRewardId').send_keys(str_saying_comp_surv_reg_p_d)
-    driver.execute_script("document.getElementById('OutcomeCompleteSecondaryRewardValue').value = '" + str(prize_draw_entries) + "';")
-    driver.find_element_by_id('OutcomeCompleteSecondaryRewardType').send_keys('Reward')
-    driver.find_element_by_id('OutcomeCompleteRewardType').send_keys(the_word_credits)
+    driver.find_element_by_id('CompleteOutcomeRewardId').send_keys(str_saying_comp_surv_reg_p_d)
+
+    # I think these are now redundant
+    # driver.execute_script("document.getElementById('OutcomeCompleteSecondaryRewardValue').value = '" + str(prize_draw_entries) + "';")
+    # driver.find_element_by_id('OutcomeCompleteSecondaryRewardType').send_keys('Reward')
+    # driver.find_element_by_id('OutcomeCompleteRewardType').send_keys(the_word_credits)
 
     if mobile_friendly == "No":
         driver.find_element_by_id('DesktopOnly').click()
@@ -426,6 +439,7 @@ so_outcome_reward_id = 'Disqualified Survey - Regular Prize Draw'
 str_saying_comp_surv_reg_p_d = 'Completed Survey - Regular Prize Draw'
 the_word_credits = 'Credits'
 tc_filepath = cfg.tc_filepath  # file path of T&Cs pdf file
+ec_value_for_so_and_qf = "10"
 
 
 
