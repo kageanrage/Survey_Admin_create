@@ -10,6 +10,7 @@ from zcrmsdk import *
 from pprint import pprint
 import se_general, se_admin, se_zoho
 import cmv_quotas
+from selenium.webdriver.common.by import By
 
 
 # to avoid errors:
@@ -253,47 +254,48 @@ def add_fields_to_redirects_xls():
 
 
 def enter_data_sa():
-    driver.find_element_by_id('Name').send_keys(survey_name)  # using send_keys instead of script command here due to potential inclusion of apostrophes etc which stuff up the js syntax
-    driver.execute_script("document.getElementById('Status').value = '" + str(status) + "';")
-    driver.execute_script("document.getElementById('Title').value = '" + str(topic) + "';")
-    driver.execute_script("document.getElementById('ProjectIONumber').value = '" + str(p_number) + "';")
-    driver.execute_script("document.getElementById('ExpectedLength').value = '" + str(expected_loi) + "';")
-    driver.execute_script("document.getElementById('ClientCompanyName').value = '" + str(client_name) + "';")
-    driver.execute_script("document.getElementById('ExternalSurveyUrl').value = '" + str(external_survey_url) + "';")
-    driver.execute_script("document.getElementById('StartDate').value = '" + str(start_date) + "';")
-    driver.execute_script("document.getElementById('EndDate').value = '" + str(end_date) + "';")
+    driver.find_element('id', 'Name').send_keys(survey_name)  # using send_keys instead of script command here due to potential inclusion of apostrophes etc which stuff up the js syntax
+    
+    driver.find_element('id', 'Status').send_keys(str(status))
+    driver.find_element('id', 'Title').send_keys(str(topic))
+    driver.find_element('id', 'ProjectIONumber').send_keys(str(p_number))
+    driver.find_element('id', 'ExpectedLength').send_keys(str(expected_loi))
+    driver.find_element('id', 'ClientCompanyName').send_keys(str(client_name))
+    driver.find_element('id', 'ExternalSurveyUrl').send_keys(str(external_survey_url))
+    driver.find_element('id', 'StartDate').send_keys(str(start_date))
+    driver.find_element('id', 'EndDate').send_keys(str(end_date))
 
     # Outcome messages
-    driver.execute_script("document.getElementById('OutcomeFull').value = '" + str(qf_msg) + "';")
-    driver.execute_script("document.getElementById('OutcomeScreened').value = '" + str(so_msg) + "';")
-    driver.execute_script("document.getElementById('OutcomeComplete').value = '" + str(comp_msg) + "';")
+    driver.find_element('id', 'OutcomeFull').send_keys(str(qf_msg))
+    driver.find_element('id', 'OutcomeScreened').send_keys(str(so_msg))
+    driver.find_element('id', 'OutcomeComplete').send_keys(str(comp_msg))
 
     # Outcome value counts
-    driver.execute_script("document.getElementById('OutcomeFullRewardValue').value = '" + str(prize_draw_entries) + "';")
-    driver.execute_script("document.getElementById('OutcomeScreenedRewardValue').value = '" + str(prize_draw_entries) + "';")
-    driver.execute_script("document.getElementById('OutcomeCompleteRewardValue').value = '" + str(prize_draw_entries) + "';")  # This will just input a '1'
+    driver.find_element('id', 'OutcomeFullRewardValue').send_keys(str(prize_draw_entries))
+    driver.find_element('id', 'OutcomeScreenedRewardValue').send_keys(str(prize_draw_entries))
+    driver.find_element('id', 'OutcomeCompleteRewardValue').send_keys(str(prize_draw_entries))  # This will just input a '1'
 
     # Outcome EC values
-    driver.execute_script("document.getElementById('OutcomeCompleteSecondaryRewardValue').value = '" + str(edge_credits) + "';")
-    driver.execute_script("document.getElementById('OutcomeFullSecondaryRewardValue').value = '" + str(ec_value_for_so_and_qf) + "';")
-    driver.execute_script("document.getElementById('OutcomeScreenedSecondaryRewardValue').value = '" + str(ec_value_for_so_and_qf) + "';")
+    driver.find_element('id', 'OutcomeCompleteSecondaryRewardValue').send_keys(str(edge_credits))
+    driver.find_element('id', 'OutcomeFullSecondaryRewardValue').send_keys(str(ec_value_for_so_and_qf))
+    driver.find_element('id', 'OutcomeScreenedSecondaryRewardValue').send_keys(str(ec_value_for_so_and_qf))
 
     # Outcome Reward IDs
-    driver.find_element_by_id('FullOutcomeRewardId').send_keys(qf_outcome_reward_id)  # this didn't work via JS execution method
-    driver.find_element_by_id('ScreenedOutcomeRewardId').send_keys(so_outcome_reward_id)  # this didn't work via JS execution method
-    driver.find_element_by_id('CompleteOutcomeRewardId').send_keys(str_saying_comp_surv_reg_p_d)
+    driver.find_element('id', 'FullOutcomeRewardId').send_keys(qf_outcome_reward_id)  # this didn't work via JS execution method
+    driver.find_element('id', 'ScreenedOutcomeRewardId').send_keys(so_outcome_reward_id)  # this didn't work via JS execution method
+    driver.find_element('id', 'CompleteOutcomeRewardId').send_keys(str_saying_comp_surv_reg_p_d)
 
     # I think these are now redundant
-    # driver.execute_script("document.getElementById('OutcomeCompleteSecondaryRewardValue').value = '" + str(prize_draw_entries) + "';")
-    # driver.find_element_by_id('OutcomeCompleteSecondaryRewardType').send_keys('Reward')
-    # driver.find_element_by_id('OutcomeCompleteRewardType').send_keys(the_word_credits)
+    # driver.find_element('id', 'OutcomeCompleteSecondaryRewardValue').value = '" + str(prize_draw_entries) + "';")
+    # driver.find_element('id', 'OutcomeCompleteSecondaryRewardType').send_keys('Reward')
+    # driver.find_element('id', 'OutcomeCompleteRewardType').send_keys(the_word_credits)
 
     if mobile_friendly == "No":
-        driver.find_element_by_id('DesktopOnly').click()
+        driver.find_element('id', 'DesktopOnly').click()
     if len(str(survey_ids_to_exclude)) > 10:
-        driver.find_element_by_id('ExcludePastSurveyIds').send_keys(survey_ids_to_exclude)  # amended 03-03-20
-    # driver.find_element_by_id('TermsAndConditionsPdf').click()  # moved away from .click to ActionChains due to Chrome v78 bug
-    tc_button = driver.find_element_by_id('TermsAndConditionsPdf')
+        driver.find_element('id', 'ExcludePastSurveyIds').send_keys(survey_ids_to_exclude)  # amended 03-03-20
+    # driver.find_element('id', 'TermsAndConditionsPdf').click()  # moved away from .click to ActionChains due to Chrome v78 bug
+    tc_button = driver.find_element('id', 'TermsAndConditionsPdf')
     ActionChains(driver).click(tc_button).perform()
     time.sleep(2)
     pyautogui.typewrite(tc_filepath)  # since popup window is outside web browser, need a diff package to control
@@ -302,7 +304,7 @@ def enter_data_sa():
     time.sleep(2)
 
     # add intro popup text
-    tiny_mce = driver.find_element_by_css_selector('html')
+    tiny_mce = driver.find_element(By.CSS_SELECTOR, 'html')
     tiny_mce.click()
     time.sleep(1)
     pyautogui.typewrite(' ')
@@ -320,22 +322,22 @@ def enter_data_sa():
         pyautogui.typewrite(cfg.default_pre_survey_text)
         time.sleep(2)
 
-    submit_button = driver.find_element_by_css_selector('#add-edit-survey > fieldset > dl > div.form_navigation > button')
+    submit_button = driver.find_element(By.CSS_SELECTOR, '#add-edit-survey > fieldset > dl > div.form_navigation > button')
     ActionChains(driver).click(submit_button).perform()
     # COMMENT OUT THE LAST ROW FOR TEST MODE, TO AVOID ACTUAL PROJECT CREATION  ###########
 
 
 def grab_survey_id():
-    project_sa_listing = driver.find_element_by_link_text(survey_name)  # no longer works from Mar-20 with SA change to html table, but perhaps fixed 23-03    print('pausing for a few sec to make sure page has loaded')
+    project_sa_listing = driver.find_element(By.LINK_TEXT, survey_name)  # no longer works from Mar-20 with SA change to html table, but perhaps fixed 23-03    print('pausing for a few sec to make sure page has loaded')
     time.sleep(4)
     # use the following chunk if this method doesn't work and I need to sort the table and click first row:
     """
-    # start_date_header = driver.find_element_by_css_selector('css=.col-06 > .mvc-grid-title')
+    # start_date_header = driver.find_element(By.CSS_SELECTOR, 'css=.col-06 > .mvc-grid-title')
     # start_date_header.click()
     # time.sleep(3)
     # start_date_header.click()
     # time.sleep(3)
-    # project_sa_listing = driver.find_element_by_css_selector(".selectable-row:nth-child(1) > .clickable:nth-child(1)")
+    # project_sa_listing = driver.find_element(By.CSS_SELECTOR, ".selectable-row:nth-child(1) > .clickable:nth-child(1)")
     """
     project_sa_listing.click()
     time.sleep(4)
@@ -347,17 +349,17 @@ def grab_survey_id():
 
 
 def create_test_quota():
-    add_quota_button = driver.find_element_by_link_text('Add a new quota')
+    add_quota_button = driver.find_element(By.LINK_TEXT, 'Add a new quota')
     add_quota_button.click()
     time.sleep(2)
-    name_field = driver.find_element_by_id('Name')
+    name_field = driver.find_element('id', 'Name')
     name_field.send_keys('1')
-    all_states_button = driver.find_element_by_link_text('>>')
+    all_states_button = driver.find_element(By.LINK_TEXT, '>>')
     all_states_button.click()
-    target_field = driver.find_element_by_id('Target')
+    target_field = driver.find_element('id', 'Target')
     target_field.clear()
     target_field.send_keys('1')
-    save_new_quota_button = driver.find_element_by_css_selector('.green')
+    save_new_quota_button = driver.find_element(By.CSS_SELECTOR, '.green')
     save_new_quota_button.click()
 
 
