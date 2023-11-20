@@ -192,9 +192,9 @@ def create_redirects_xls(q, s, c):
     sheet1['B2'] = 'Complete:'
     sheet1['B3'] = 'Screened:'
     sheet1['B4'] = 'Quota Full:'
-    sheet1['C2'] = c
-    sheet1['C3'] = s
-    sheet1['C4'] = q
+    sheet1['C2'] = str(cfg.redirect_prefix + c)
+    sheet1['C3'] = str(cfg.redirect_prefix + s)
+    sheet1['C4'] = str(cfg.redirect_prefix + q)
     sheet1.column_dimensions['B'].width = 15
     sheet1.column_dimensions['C'].width = 95
 
