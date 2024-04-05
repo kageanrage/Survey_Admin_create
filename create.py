@@ -192,9 +192,13 @@ def create_redirects_xls(q, s, c):
     sheet1['B2'] = 'Complete:'
     sheet1['B3'] = 'Screened:'
     sheet1['B4'] = 'Quota Full:'
+    sheet1['B5'] = 'Late Screened:'
+    sheet1['B6'] = 'Quality Terminate:'
     sheet1['C2'] = str(cfg.redirect_prefix + c)
     sheet1['C3'] = str(cfg.redirect_prefix + s)
     sheet1['C4'] = str(cfg.redirect_prefix + q)
+    sheet1['C5'] = str(cfg.redirect_prefix + ls)
+    sheet1['C6'] = str(cfg.redirect_prefix + qt)
     sheet1.column_dimensions['B'].width = 15
     sheet1.column_dimensions['C'].width = 95
 
@@ -203,27 +207,43 @@ def create_redirects_xls(q, s, c):
     sheet1['B2'].font = emboldened
     sheet1['B3'].font = emboldened
     sheet1['B4'].font = emboldened
+    sheet1['B5'].font = emboldened
+    sheet1['B6'].font = emboldened
 
     thin = Side(border_style='thin')
     surrounded = Border(top=thin, left=thin, right=thin, bottom=thin)
     sheet1['B2'].border = surrounded
     sheet1['B3'].border = surrounded
     sheet1['B4'].border = surrounded
+    sheet1['B5'].border = surrounded
+    sheet1['B6'].border = surrounded
     sheet1['C2'].border = surrounded
     sheet1['C3'].border = surrounded
     sheet1['C4'].border = surrounded
+    sheet1['C5'].border = surrounded
+    sheet1['C6'].border = surrounded
 
     green = PatternFill("solid", fgColor="F0FFF0")
     sheet1['B2'].fill = green
     sheet1['C2'].fill = green
 
-    orange = PatternFill("solid", fgColor="FFF0F5")
-    sheet1['B3'].fill = orange
-    sheet1['C3'].fill = orange
+    red = PatternFill("solid", fgColor="FFF0F5")
+    sheet1['B3'].fill = red
+    sheet1['C3'].fill = red
 
-    red = PatternFill("solid", fgColor="FFEFD5")
-    sheet1['B4'].fill = red
-    sheet1['C4'].fill = red
+    orange = PatternFill("solid", fgColor="FFEFD5")
+    sheet1['B4'].fill = orange
+    sheet1['C4'].fill = orange
+
+    # red = PatternFill("solid", fgColor="FFEFD5")
+    sheet1['B5'].fill = red
+    sheet1['C5'].fill = red
+
+    # red = PatternFill("solid", fgColor="FFEFD5")
+    sheet1['B6'].fill = red
+    sheet1['C6'].fill = red
+
+
 
     wb.save(redirects_wb_path_name_ext)
 
@@ -234,21 +254,21 @@ def add_fields_to_redirects_xls():
 
     sheet1 = wb.active
 
-    sheet1['B7'] = 'P number:'
-    sheet1['C7'] = p_number
-    sheet1['B8'] = 'Survey ID:'
-    sheet1['C8'] = survey_id
+    sheet1['B9'] = 'P number:'
+    sheet1['C9'] = p_number
+    sheet1['B10'] = 'Survey ID:'
+    sheet1['C10'] = survey_id
 
     emboldened = Font(bold=True)
-    sheet1['B7'].font = emboldened
-    sheet1['B8'].font = emboldened
+    sheet1['B9'].font = emboldened
+    sheet1['B10'].font = emboldened
 
     thin = Side(border_style='thin')
     surrounded = Border(top=thin, left=thin, right=thin, bottom=thin)
-    sheet1['B7'].border = surrounded
-    sheet1['B8'].border = surrounded
-    sheet1['C7'].border = surrounded
-    sheet1['C8'].border = surrounded
+    sheet1['B9'].border = surrounded
+    sheet1['B10'].border = surrounded
+    sheet1['C9'].border = surrounded
+    sheet1['C10'].border = surrounded
 
     wb.save(filename_inc_dir)
 
@@ -269,20 +289,28 @@ def enter_data_sa():
     driver.find_element('id', 'OutcomeFull').send_keys(str(qf_msg))
     driver.find_element('id', 'OutcomeScreened').send_keys(str(so_msg))
     driver.find_element('id', 'OutcomeComplete').send_keys(str(comp_msg))
+    driver.find_element('id', 'OutcomeLateScreened').send_keys(str(so_msg))
+    driver.find_element('id', 'OutcomeQualityTerminate').send_keys(str(so_msg))
 
     # Outcome value counts
     driver.find_element('id', 'OutcomeFullRewardValue').send_keys(str(prize_draw_entries))
     driver.find_element('id', 'OutcomeScreenedRewardValue').send_keys(str(prize_draw_entries))
     driver.find_element('id', 'OutcomeCompleteRewardValue').send_keys(str(prize_draw_entries))  # This will just input a '1'
+    driver.find_element('id', 'OutcomeLateScreenedRewardValue').send_keys(str(prize_draw_entries))  
+    driver.find_element('id', 'OutcomeQualityTerminateRewardValue').send_keys(str(prize_draw_entries))  
 
     # Outcome EC values
     driver.find_element('id', 'OutcomeCompleteSecondaryRewardValue').send_keys(str(edge_credits))
     driver.find_element('id', 'OutcomeFullSecondaryRewardValue').send_keys(str(ec_value_for_so_and_qf))
     driver.find_element('id', 'OutcomeScreenedSecondaryRewardValue').send_keys(str(ec_value_for_so_and_qf))
+    driver.find_element('id', 'OutcomeLateScreenedSecondaryRewardValue').send_keys(str(ec_value_for_so_and_qf))
+    driver.find_element('id', 'OutcomeQualityTerminateSecondaryRewardValue').send_keys(str(ec_value_for_so_and_qf))
 
     # Outcome Reward IDs
     driver.find_element('id', 'FullOutcomeRewardId').send_keys(qf_outcome_reward_id)  # this didn't work via JS execution method
-    driver.find_element('id', 'ScreenedOutcomeRewardId').send_keys(so_outcome_reward_id)  # this didn't work via JS execution method
+    driver.find_element('id', 'ScreenedOutcomeRewardId').send_keys(so_outcome_reward_id)  
+    driver.find_element('id', 'LateScreenedOutcomeRewardId').send_keys(so_outcome_reward_id)  
+    driver.find_element('id', 'QualityTerminateOutcomeRewardId').send_keys(so_outcome_reward_id)  
     driver.find_element('id', 'CompleteOutcomeRewardId').send_keys(str_saying_comp_surv_reg_p_d)
 
     # I think these are now redundant
@@ -481,7 +509,7 @@ se_admin.login_sa_2fa(driver, cfg.create_survey_URL)  # now using fn from module
 client_dir_path = cfg.projects_dir_path + "\\" + client_name
 se_general.create_dir_if_not_exists(client_dir_path)
 se_general.create_dir_if_not_exists(new_project_dir_path)
-qf, so, comp = se_admin.grab_redirects(driver, cfg.redirect_prefix, guid_only=False)
+qf, so, comp, ls, qt = se_admin.grab_redirects(driver, cfg.redirect_prefix, guid_only=False)
 create_redirects_xls(qf, so, comp)
 
 enter_data_sa()
