@@ -377,8 +377,7 @@ def grab_survey_id():
 
 
 def create_test_quota():
-    add_quota_button = driver.find_element(By.LINK_TEXT, 'Add a new quota')
-    add_quota_button.click()
+    driver.get(f"https://data.studentedge.org/admin/survey/createquota?surveyId={survey_id}")
     time.sleep(2)
     name_field = driver.find_element('id', 'Name')
     name_field.send_keys('1')
@@ -509,11 +508,11 @@ se_admin.login_sa_2fa(driver, cfg.create_survey_URL)  # now using fn from module
 client_dir_path = cfg.projects_dir_path + "\\" + client_name
 se_general.create_dir_if_not_exists(client_dir_path)
 se_general.create_dir_if_not_exists(new_project_dir_path)
-qf, so, comp, ls, qt = se_admin.grab_redirects(driver, cfg.redirect_prefix, guid_only=False)
-create_redirects_xls(qf, so, comp)
 
 enter_data_sa()
 survey_id = grab_survey_id()
+qf, so, comp, ls, qt = se_admin.grab_redirects(driver, cfg.redirect_prefix, guid_only=False)
+create_redirects_xls(qf, so, comp)
 add_fields_to_redirects_xls()
 create_test_quota()
 
