@@ -519,7 +519,7 @@ create_test_quota()
 # CMV quotas
 if "CMV" in survey_name:
     print(f"CMV is in survey_name: {survey_name}")
-    cmv_quotas.generate_cmv_quotas(cfg, driver)
+    cmv_quotas.generate_cmv_quotas(cfg, driver, survey_id)
     shutil.copy(cfg.cmv_quota_template, new_project_dir_path + "\\" + "cmv_quotas_template.xlsx")
 
 driver.close()
