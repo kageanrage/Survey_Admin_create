@@ -290,7 +290,7 @@ def enter_data_sa():
     driver.find_element('id', 'OutcomeScreened').send_keys(str(so_msg))
     driver.find_element('id', 'OutcomeComplete').send_keys(str(comp_msg))
     driver.find_element('id', 'OutcomeLateScreened').send_keys(str(so_msg))
-    driver.find_element('id', 'OutcomeQualityTerminate').send_keys(str(so_msg))
+    driver.find_element('id', 'OutcomeQualityTerminate').send_keys(str(quality_msg))
 
     # Outcome value counts
     driver.find_element('id', 'OutcomeFullRewardValue').send_keys(str(prize_draw_entries))
@@ -461,6 +461,7 @@ status = 'Active'
 qf_msg = cfg.qf_msg
 so_msg = cfg.so_msg
 comp_msg = cfg.comp_msg
+quality_msg = cfg.quality_msg
 external_survey_url = 'http://www.TO_BE_CONFIRMED.com'
 prize_draw_entries = '1'
 qf_outcome_reward_id = 'Disqualified Survey - Regular Prize Draw'
